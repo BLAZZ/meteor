@@ -43,6 +43,21 @@ public class PathDetector {
 
 	private Map<String, RestfulHandleContext> handleContextMap = new HashMap<String, RestfulHandleContext>();
 
+	// 热点路径缓存，
+	// private static final int DEFAULT_MAX_HOT_CACHE_SIZE = 1000;
+	// private static final int INIT_HOT_CACHE_SIZE = 1000;
+	//
+	// private Map<String, String> hotPathPatternCache = new
+	// LinkedHashMap<String, String>(INIT_HOT_CACHE_SIZE, 0.8f, true) {
+	// private static final long serialVersionUID = -6043286276814966151L;
+	//
+	// protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+	// return size() > PathDetector.this.hotCacheSize;
+	// }
+	// };
+	//
+	// private int hotCacheSize = DEFAULT_MAX_HOT_CACHE_SIZE;
+
 	public PathDetector(PathMatcher pathMatcher, UrlPathHelper urlPathHelper,
 			ParameterNameDiscoverer parameterNameDiscoverer) {
 		this.pathMatcher = pathMatcher;
@@ -92,10 +107,30 @@ public class PathDetector {
 		// 能找到直接匹配的处理方法
 		if (handleContext != null) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("找到URL[" + lookupPath + "],Method["+ method +"]对应的" + handleContext);
+				LOGGER.debug("找到URL[" + lookupPath + "],Method[" + method + "]对应的" + handleContext);
 			}
 			return handleContext;
 		}
+
+		// // 热点路径命中
+		// String hotMatchPattern = hotPathPatternCache.get(lookupPath);
+		// if (hotMatchPattern != null) {
+		// handleContext = getHandleContextOfUrl(lookupPath, method);
+		// if (handleContext != null) {
+		// uriTemplateVariables.putAll(pathMatcher.extractUriTemplateVariables(hotMatchPattern,
+		// lookupPath));
+		// if (LOGGER.isDebugEnabled()) {
+		// LOGGER.debug("找到URL[" + lookupPath + "],Method[" + method +
+		// "]对应的Controller[" + handleContext + "]");
+		// }
+		// } else {
+		// if (LOGGER.isDebugEnabled()) {
+		// LOGGER.debug("没有找到URL[" + lookupPath + "],Method[" + method +
+		// "]对应的处理方法");
+		// }
+		// }
+		// return handleContext;
+		// }
 
 		List<String> matchingPatterns = new ArrayList<String>();
 		for (String registeredPattern : this.handleContextMap.keySet()) {
@@ -106,7 +141,7 @@ public class PathDetector {
 
 		if (matchingPatterns.isEmpty()) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("没有找到URL[" + lookupPath + "],Method["+ method +"]对应的处理方法");
+				LOGGER.debug("没有找到URL[" + lookupPath + "],Method[" + method + "]对应的处理方法");
 			}
 			return null;
 		}
@@ -117,15 +152,19 @@ public class PathDetector {
 		String bestMatchPattern = matchingPatterns.get(0);
 		handleContext = getHandleContextOfUrl(bestMatchPattern, method);
 
-		if (LOGGER.isDebugEnabled()) {
-			if (handleContext != null) {
-				LOGGER.debug("找到URL[" + lookupPath + "],Method["+ method +"]对应的Controller["+ handleContext + "]");
-			} else {
-				LOGGER.debug("没有找到URL[" + lookupPath + "],Method["+ method +"]对应的处理方法");
+		if (handleContext != null) {
+			uriTemplateVariables.putAll(pathMatcher.extractUriTemplateVariables(bestMatchPattern, lookupPath));
+
+			// hotPathPatternCache.put(lookupPath, bestMatchPattern);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("找到URL[" + lookupPath + "],Method[" + method + "]对应的Controller[" + handleContext + "]");
+			}
+		} else {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("没有找到URL[" + lookupPath + "],Method[" + method + "]对应的处理方法");
 			}
 		}
-
-		uriTemplateVariables.putAll(pathMatcher.extractUriTemplateVariables(bestMatchPattern, lookupPath));
 
 		return handleContext;
 	}
@@ -154,6 +193,10 @@ public class PathDetector {
 	public void setHandlerInterceptors(List<HandlerInterceptor> handlerInterceptors) {
 		this.handlerInterceptors = handlerInterceptors;
 	}
+
+	// public void setHotCacheSize(int hotCacheSize) {
+	// this.hotCacheSize = hotCacheSize;
+	// }
 
 	/**
 	 * 检测controllers中的Handler
@@ -217,6 +260,9 @@ public class PathDetector {
 			}
 			// 解析方法上的@Path
 			detectUrlsFromControllerMethods(controllerType, typeLevelPattern, controller);
+		} else {
+			// 解析方法上的@Path
+			detectUrlsFromControllerMethods(controllerType, "", controller);
 		}
 
 	}
