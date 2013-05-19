@@ -139,8 +139,8 @@ public class RequestHandler {
 	 * @param errors
 	 * @return
 	 */
-	protected ModelAndView buildValidateFaildView(RequestHandleContext handleContext
-			, ContextProvider contextProvider, Errors errors) {
+	protected ModelAndView buildValidateFaildView(RequestHandleContext handleContext, ContextProvider contextProvider,
+			Errors errors) {
 
 		if (errors == null) {
 			return null;
@@ -218,12 +218,12 @@ public class RequestHandler {
 	 * @param paramTypes
 	 * @return
 	 */
-	protected Object[] uriVariablesToArguments(RequestHandleContext handleContext,
-			ContextProvider contextProvider, String[] paramNames, Class<?>[] paramTypes) {
+	protected Object[] uriVariablesToArguments(RequestHandleContext handleContext, ContextProvider contextProvider,
+			String[] paramNames, Class<?>[] paramTypes) {
 		Object[] args = new Object[paramNames.length];
 		Map<String, Converter> pathVarConverters = handleContext.getPathVarConverters();
 		Map<String, Integer> pathVarIndexs = handleContext.getPathVarIndexs();
-		
+
 		for (Entry<String, String> entry : contextProvider.getUriTemplateVariables().entrySet()) {
 			String name = entry.getKey();
 			Converter converter = pathVarConverters.get(name);
@@ -247,7 +247,7 @@ public class RequestHandler {
 	protected ContextProvider initContextProvider(HttpServletRequest request, HttpServletResponse response,
 			Map<String, String> uriTemplateVariables) {
 		ContextProvider contextProvider = new ContextProvider();
-		
+
 		Map<String, String[]> parameterValues = request.getParameterMap();
 		contextProvider.setRequestParameters(parameterValues);
 
@@ -256,11 +256,11 @@ public class RequestHandler {
 			contextProvider.setMultipartFiles(multipartFiles);
 
 		}
-		
+
 		contextProvider.setRequest(request);
 		contextProvider.setResponse(response);
-		contextProvider.setSession(request.getSession());
-		
+		// contextProvider.setSession(request.getSession());
+
 		contextProvider.setUriTemplateVariables(uriTemplateVariables);
 
 		return contextProvider;

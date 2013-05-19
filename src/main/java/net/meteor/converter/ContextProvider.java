@@ -13,19 +13,19 @@ import net.meteor.multipart.MultipartFile;
  * 请求上下文容器
  * 
  * @author wuqh
- *
+ * 
  */
 public class ContextProvider implements Cloneable {
 	private Map<String, String[]> requestParameters;
-	
+
 	private HttpServletRequest request;
-	
+
 	private HttpServletResponse response;
-	
-	private HttpSession session;
-	
+
+	// private HttpSession session;
+
 	private Map<String, String> uriTemplateVariables;
-	
+
 	Map<String, List<MultipartFile>> multipartFiles;
 
 	public Map<String, String[]> getRequestParameters() {
@@ -53,12 +53,12 @@ public class ContextProvider implements Cloneable {
 	}
 
 	public HttpSession getSession() {
-		return session;
+		return getRequest().getSession();
 	}
 
-	public void setSession(HttpSession session) {
-		this.session = session;
-	}
+	// public void setSession(HttpSession session) {
+	// this.session = session;
+	// }
 
 	public Map<String, String> getUriTemplateVariables() {
 		return uriTemplateVariables;
@@ -67,22 +67,22 @@ public class ContextProvider implements Cloneable {
 	public void setUriTemplateVariables(Map<String, String> uriTemplateVariables) {
 		this.uriTemplateVariables = uriTemplateVariables;
 	}
-	
+
 	public Map<String, List<MultipartFile>> getMultipartFiles() {
 		return multipartFiles;
 	}
-	
+
 	public void setMultipartFiles(Map<String, List<MultipartFile>> multipartFiles) {
 		this.multipartFiles = multipartFiles;
 	}
-	
+
 	public ContextProvider clone() {
 		ContextProvider provider = new ContextProvider();
 		provider.setMultipartFiles(getMultipartFiles());
 		provider.setRequest(getRequest());
 		provider.setRequestParameters(getRequestParameters());
 		provider.setResponse(getResponse());
-		provider.setSession(getSession());
+		// provider.setSession(getSession());
 		provider.setUriTemplateVariables(getUriTemplateVariables());
 		return provider;
 	}
