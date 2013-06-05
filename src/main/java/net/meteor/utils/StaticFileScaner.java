@@ -13,11 +13,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StaticFileScaner {
-	private static final Log LOGGER = LogFactory.getLog(StaticFileScaner.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(StaticFileScaner.class);
 	private AtomicBoolean isRun = new AtomicBoolean(false);
 	private final Runnable findFiles;
 	private final Executor executor = Executors.newCachedThreadPool();

@@ -6,8 +6,8 @@ import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 请求URL解析工具类
@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  */
 public class UrlPathHelper {
-	private static final Log LOGGER = LogFactory.getLog(UrlPathHelper.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UrlPathHelper.class);
 	private String defaultEncoding = WebUtils.DEFAULT_CHARACTER_ENCODING;
 
 	/**

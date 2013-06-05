@@ -12,10 +12,10 @@ import net.meteor.validation.Validator;
 import net.meteor.validation.ValidatorFactory;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.Form;
 import org.apache.commons.validator.ValidatorResources;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
  * @author wuqh
  * */
 public class CommonsValidatorFactory implements ValidatorFactory {
-	private static final Log LOGGER = LogFactory.getLog(CommonsValidatorFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CommonsValidatorFactory.class);
 	public static final String PROPERTY_SUFFIX = ".properties";
 	private ValidatorResources validatorResources;
 	private ResourceBundle errorMessageBundle;

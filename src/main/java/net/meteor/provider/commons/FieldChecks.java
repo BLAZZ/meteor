@@ -12,14 +12,14 @@ import java.util.ResourceBundle;
 
 import net.meteor.validation.Errors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.Arg;
 import org.apache.commons.validator.Field;
 import org.apache.commons.validator.GenericTypeValidator;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.ValidatorAction;
 import org.apache.commons.validator.util.ValidatorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 校验规则，如需增加规则，请继承
@@ -28,7 +28,7 @@ public class FieldChecks implements Serializable {
 
 	private static final long serialVersionUID = -4838856396216476764L;
 
-	private static final Log LOGGER = LogFactory.getLog(FieldChecks.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FieldChecks.class);
 
 	// private static final String FIELD_TEST_NULL = "NULL";
 	//

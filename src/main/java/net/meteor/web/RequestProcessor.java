@@ -26,8 +26,8 @@ import net.meteor.utils.StaticFileScaner;
 import net.meteor.utils.WebUtils;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 请求处理器，用于处理用于请求
@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  */
 public class RequestProcessor {
-	private static final Log LOGGER = LogFactory.getLog(RequestProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RequestProcessor.class);
 
 	private static final String METEOR_CONFIG_CLASS = "configClass";
 	private static final String ENCODING = "encoding";
@@ -299,9 +299,7 @@ public class RequestProcessor {
 		if (result != null) {
 			render(request, response, result);
 		} else {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("请求返回的HandleResult为null，系统认为处理成功结束");
-			}
+			LOGGER.debug("请求返回的HandleResult为null，系统认为处理成功结束");
 		}
 
 		if (handleChain != null) {
@@ -363,7 +361,7 @@ public class RequestProcessor {
 	protected void render(HttpServletRequest request, HttpServletResponse response, ModelAndView result)
 			throws Exception {
 		if (result == null) {
-			LOGGER.warn("返回的ModelAndView为空，不进入任何页面");
+			LOGGER.debug("返回的ModelAndView为空，不进入任何页面");
 			return;
 		}
 

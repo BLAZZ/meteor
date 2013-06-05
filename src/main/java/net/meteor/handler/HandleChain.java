@@ -5,8 +5,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 请求处理链，包含请求调用所必须的上下文环境等信息
@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  */
 public class HandleChain {
-	private static final Log LOGGE = LogFactory.getLog(HandleChain.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(HandleChain.class);
 	private final HandlerInterceptor[] interceptors;
 	private final RequestHandleContext handleContext;
 	private int currentInterceptorIndex = -1;
@@ -116,7 +116,7 @@ public class HandleChain {
 			try {
 				interceptor.afterCompletion(request, response, this.handleContext.getController(), ex);
 			} catch (Throwable e) {
-				LOGGE.error("调用HandlerInterceptor的afterCompletion方法发生异常", e);
+				LOGGER.error("调用HandlerInterceptor的afterCompletion方法发生异常", e);
 			}
 		}
 	}

@@ -32,8 +32,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * commons-fileupload实现的MultipartParser
@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class CommonsMultipartParser implements MultipartParser {
-	private final Log LOGGER = LogFactory.getLog(CommonsMultipartParser.class);
+	private final Logger LOGGER = LoggerFactory.getLogger(CommonsMultipartParser.class);
 
 	private final DiskFileItemFactory fileItemFactory;
 	private final FileUpload fileUpload;

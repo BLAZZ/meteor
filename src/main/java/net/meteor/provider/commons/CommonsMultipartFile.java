@@ -10,8 +10,8 @@ import net.meteor.multipart.MultipartFile;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * commons-fileupload实现的MultipartFile
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 public class CommonsMultipartFile implements MultipartFile {
 	private static final long serialVersionUID = 6106844513608675762L;
 
-	protected static final Log LOGGER = LogFactory.getLog(CommonsMultipartFile.class);
+	protected static final Logger LOGGER = LoggerFactory.getLogger(CommonsMultipartFile.class);
 
 	private final FileItem fileItem;
 

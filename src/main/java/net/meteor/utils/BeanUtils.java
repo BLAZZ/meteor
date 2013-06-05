@@ -20,8 +20,8 @@ import java.util.WeakHashMap;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bean操作工具类
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class BeanUtils {
-	private static final Log LOGGER = LogFactory.getLog(BeanUtils.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeanUtils.class);
 
 	private static final Map<Class<?>, Map<String, PropertyDescriptor>> PROPERTY_DESCRIPTOR_CACHE = new WeakHashMap<Class<?>, Map<String, PropertyDescriptor>>();
 	private static Map<Class<?>, Object> primitiveDefaults;

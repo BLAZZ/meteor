@@ -9,8 +9,8 @@ import java.lang.reflect.Type;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 反射及类相关操作工具类
@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  */
 public class ReflectionUtils {
-	private static final Log LOGGER = LogFactory.getLog(ReflectionUtils.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionUtils.class);
 
 	public static final String CGLIB_CLASS_SEPARATOR = "$$";
 	/** ".class"文件扩展名 */

@@ -20,8 +20,8 @@ import net.meteor.utils.ReflectionUtils;
 import net.meteor.utils.UrlPathHelper;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Path探测器，用于扫描Bean容器中的请求处理器（Controller），并且根据请求的路径匹配做合适的Controller，
@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  */
 public class PathDetector {
-	private static final Log LOGGER = LogFactory.getLog(PathDetector.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PathDetector.class);
 
 	private final PathMatcher pathMatcher;
 
