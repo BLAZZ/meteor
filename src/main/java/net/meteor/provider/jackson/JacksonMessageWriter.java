@@ -27,9 +27,8 @@ import org.codehaus.jackson.map.SerializationConfig;
  */
 public class JacksonMessageWriter implements MessageWriter {
 	private String mime;
-	private String defaultMime = WebUtils.DEFAULT_MIME;
-	private ObjectMapper objectMapper = new ObjectMapper();
-	private Map<String, JsonEncoding> jsonEncodingCache = new HashMap<String, JsonEncoding>(2, 1);
+	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final Map<String, JsonEncoding> jsonEncodingCache = new HashMap<String, JsonEncoding>(2, 1);
 
 	@Override
 	public void writeResponseBody(HttpServletRequest request, HttpServletResponse response, Object returnValue) {
@@ -59,7 +58,7 @@ public class JacksonMessageWriter implements MessageWriter {
 	 * @param contentType
 	 * @return
 	 */
-	protected JsonEncoding getJsonEncoding(String contentType) {
+	private JsonEncoding getJsonEncoding(String contentType) {
 		JsonEncoding cachedEncoding = jsonEncodingCache.get(contentType);
 		if (cachedEncoding != null) {
 			return cachedEncoding;
@@ -91,6 +90,7 @@ public class JacksonMessageWriter implements MessageWriter {
 	}
 
 	private String getDefaultMime() {
+		String defaultMime = WebUtils.DEFAULT_MIME;
 		return defaultMime;
 	}
 

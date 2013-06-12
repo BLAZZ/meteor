@@ -42,7 +42,7 @@ public class RequestHandler {
 	}
 
 	/**
-	 * 处理reuqest请求
+	 * 处理request请求
 	 * 
 	 * @param request
 	 * @param response
@@ -83,7 +83,7 @@ public class RequestHandler {
 	 * @param contextProvider
 	 * @return
 	 */
-	protected ModelAndView validateRequest(RequestHandleContext handleContext, ContextProvider contextProvider) {
+	private ModelAndView validateRequest(RequestHandleContext handleContext, ContextProvider contextProvider) {
 		// 判断是否需要表单校验
 		Validation validation = handleContext.getValidation();
 		if (validatorFactory == null || validation == null) {
@@ -100,7 +100,7 @@ public class RequestHandler {
 		// 执行表单校验
 		Errors errors = doValidation(handleContext, contextProvider);
 		// 处理表单校验结果
-		return buildValidateFaildView(handleContext, contextProvider, errors);
+		return buildValidateFailedView(handleContext, contextProvider, errors);
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class RequestHandler {
 	 * @param contextProvider
 	 * @return
 	 */
-	protected Errors doValidation(RequestHandleContext handleContext, ContextProvider contextProvider) {
+	private Errors doValidation(RequestHandleContext handleContext, ContextProvider contextProvider) {
 
 		Errors errors = new Errors();
 		Validation validation = handleContext.getValidation();
@@ -139,14 +139,14 @@ public class RequestHandler {
 	 * @param errors
 	 * @return
 	 */
-	protected ModelAndView buildValidateFaildView(RequestHandleContext handleContext, ContextProvider contextProvider,
+	private ModelAndView buildValidateFailedView(RequestHandleContext handleContext, ContextProvider contextProvider,
 			Errors errors) {
 
 		if (errors == null) {
 			return null;
 		}
 
-		ModelAndView errMv = null;
+		ModelAndView errMv;
 		Map<String, String> errMsg = errors.getErrors();
 		// 如果方法存在@RespBody注解，则将错误信息则返回类似{"errors":{"错误字段":"错误信息"}}（
 		// 如果是JSON解析器）的格式
@@ -197,7 +197,7 @@ public class RequestHandler {
 	 * @param contextProvider
 	 * @return
 	 */
-	protected Object[] getArguments(RequestHandleContext handleContext, ContextProvider contextProvider) {
+	private Object[] getArguments(RequestHandleContext handleContext, ContextProvider contextProvider) {
 
 		String[] paramNames = handleContext.getParamNames();
 		Class<?>[] paramTypes = handleContext.getParamTypes();
@@ -218,16 +218,16 @@ public class RequestHandler {
 	 * @param paramTypes
 	 * @return
 	 */
-	protected Object[] uriVariablesToArguments(RequestHandleContext handleContext, ContextProvider contextProvider,
+	private Object[] uriVariablesToArguments(RequestHandleContext handleContext, ContextProvider contextProvider,
 			String[] paramNames, Class<?>[] paramTypes) {
 		Object[] args = new Object[paramNames.length];
 		Map<String, Converter> pathVarConverters = handleContext.getPathVarConverters();
-		Map<String, Integer> pathVarIndexs = handleContext.getPathVarIndexs();
+		Map<String, Integer> pathVarIndexes = handleContext.getPathVarIndexes();
 
 		for (Entry<String, String> entry : contextProvider.getUriTemplateVariables().entrySet()) {
 			String name = entry.getKey();
 			Converter converter = pathVarConverters.get(name);
-			Integer index = pathVarIndexs.get(name);
+			Integer index = pathVarIndexes.get(name);
 			Class<?> toType = paramTypes[index];
 			args[index] = converter.convertValue(contextProvider, name, toType);
 		}
@@ -244,7 +244,7 @@ public class RequestHandler {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected ContextProvider initContextProvider(HttpServletRequest request, HttpServletResponse response,
+	private ContextProvider initContextProvider(HttpServletRequest request, HttpServletResponse response,
 			Map<String, String> uriTemplateVariables) {
 		ContextProvider contextProvider = new ContextProvider();
 
@@ -275,7 +275,7 @@ public class RequestHandler {
 	 * @param paramTypes
 	 * @param contextProvider
 	 */
-	protected void resolveArgumentsByContext(RequestHandleContext handleContext, Object[] args, String[] paramNames,
+	private void resolveArgumentsByContext(RequestHandleContext handleContext, Object[] args, String[] paramNames,
 			Class<?>[] paramTypes, ContextProvider contextProvider) {
 		Converter[] converters = handleContext.getParameterConverters();
 
@@ -298,7 +298,7 @@ public class RequestHandler {
 	 * @param uriTemplateVariables
 	 * @return
 	 */
-	protected ModelAndView processResult(Object returnValue, RequestHandleContext handleContext,
+	private ModelAndView processResult(Object returnValue, RequestHandleContext handleContext,
 			Map<String, String> uriTemplateVariables) {
 		ModelAndView result = null;
 
@@ -310,7 +310,7 @@ public class RequestHandler {
 		} else if (returnValue == null) {
 			result = null;
 		} else if (returnValue instanceof CharSequence) {
-			String viewName = ((CharSequence) returnValue).toString();
+			String viewName = returnValue.toString();
 			result = new ModelAndView(viewName);
 		}
 
@@ -325,7 +325,7 @@ public class RequestHandler {
 	 * @param mv
 	 * @param uriTemplateVariables
 	 */
-	protected void appendUriTemplateVariables(ModelAndView mv, Map<String, String> uriTemplateVariables) {
+	private void appendUriTemplateVariables(ModelAndView mv, Map<String, String> uriTemplateVariables) {
 		if (mv == null) {
 			return;
 		}

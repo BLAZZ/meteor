@@ -24,7 +24,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
  * 
  */
 public class LogbackConfigListener implements ServletContextListener {
-	public static final String CONFIG_LOCATION_PARAM = "logbackConfigLocation";
+	private static final String CONFIG_LOCATION_PARAM = "logbackConfigLocation";
 
 	public void contextInitialized(ServletContextEvent event) {
 		ServletContext servletContext = event.getServletContext();
@@ -43,7 +43,7 @@ public class LogbackConfigListener implements ServletContextListener {
 
 	private void initLogging(String location) throws JoranException {
 		URL url = getResourceURL(location);
-		LoggerContext loggerContext  = (LoggerContext) LoggerFactory.getILoggerFactory();
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 		loggerContext.reset();
 		JoranConfigurator configurator = new JoranConfigurator();
 		configurator.setContext(loggerContext);
@@ -54,7 +54,7 @@ public class LogbackConfigListener implements ServletContextListener {
 	}
 
 	private URL getResourceURL(String resourceLocation) {
-		if (isResouceInClasspath(resourceLocation)) {
+		if (isResourceInClasspath(resourceLocation)) {
 			resourceLocation = getLocationFromClasspath(resourceLocation);
 			URL url = ReflectionUtils.getDefaultClassLoader().getResource(resourceLocation);
 			if (url != null) {
@@ -83,7 +83,7 @@ public class LogbackConfigListener implements ServletContextListener {
 		return location;
 	}
 
-	private boolean isResouceInClasspath(String resourceLocation) {
+	private boolean isResourceInClasspath(String resourceLocation) {
 		if (StringUtils.isNotBlank(resourceLocation)) {
 			if (StringUtils.startsWithIgnoreCase(resourceLocation, ReflectionUtils.CLASSPATH_PREFIX)) {
 				return true;

@@ -24,9 +24,9 @@ public interface ValidatorFactory {
 	boolean hasValidator(String name);
 
 	/**
-	 * 载入配置文件，文件必须位于classpath中，可以使用'classpath:'前缀。多个文件使用','隔开
+	 * 载入配置文件，文件必须位于classpath中，可以使用"classpath:"前缀。多个文件使用','隔开
 	 * 
 	 * @param configLocations
 	 */
-	void loadConfigLocations(String configLocations);
+	void setConfigLocations(String configLocations);
 }

@@ -71,6 +71,7 @@ public class DefaultMultipartHttpServletRequest extends AbstractMultipartHttpSer
 
 	/**
 	 * 设置Multipart表单中的一般form表单
+	 * 
 	 * @param multipartParameters
 	 */
 	protected final void setMultipartParameters(Map<String, String[]> multipartParameters) {
@@ -82,7 +83,7 @@ public class DefaultMultipartHttpServletRequest extends AbstractMultipartHttpSer
 	 * 
 	 * @return
 	 */
-	protected Map<String, String[]> getMultipartParameters() {
+	private Map<String, String[]> getMultipartParameters() {
 		if (this.multipartParameters == null) {
 			initializeMultipart();
 		}

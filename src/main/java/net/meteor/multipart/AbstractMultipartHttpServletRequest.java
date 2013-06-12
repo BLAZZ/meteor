@@ -21,7 +21,7 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 
 	private Map<String, List<MultipartFile>> multipartFiles;
 
-	protected AbstractMultipartHttpServletRequest(HttpServletRequest request) {
+	AbstractMultipartHttpServletRequest(HttpServletRequest request) {
 		super(request);
 	}
 
@@ -70,7 +70,7 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 	 * 获取Multipart文件Map，（key->URL参数名,value->单个Multipart文件）
 	 * 
 	 */
-	protected Map<String, List<MultipartFile>> getMultipartFiles() {
+	private Map<String, List<MultipartFile>> getMultipartFiles() {
 		if (this.multipartFiles == null) {
 			initializeMultipart();
 		}

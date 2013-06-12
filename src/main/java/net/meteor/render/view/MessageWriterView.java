@@ -17,8 +17,8 @@ import net.meteor.render.MessageWriter;
  * 
  */
 public class MessageWriterView implements RenderableView {
-	protected MessageWriter messageWriter;
-	protected Object returnValue;
+	private final MessageWriter messageWriter;
+	private final Object returnValue;
 
 	public MessageWriterView(MessageWriter messageWriter, Object returnValue) {
 		this.messageWriter = messageWriter;
@@ -52,7 +52,7 @@ public class MessageWriterView implements RenderableView {
 
 	@Override
 	public String getViewName() {
-		return "Respone Body View";
+		return "Response Body View";
 	}
 
 }

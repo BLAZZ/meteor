@@ -16,9 +16,9 @@ import net.meteor.utils.BeanUtils;
  * 
  */
 public class BeanConverter implements Converter {
-	private Map<String, Method> writeMethods = new HashMap<String, Method>();
-	private Map<String, Class<?>> parameterTypes = new HashMap<String, Class<?>>();
-	private Map<String, Converter> parameterConverters = new HashMap<String, Converter>();
+	private final Map<String, Method> writeMethods = new HashMap<String, Method>();
+	private final Map<String, Class<?>> parameterTypes = new HashMap<String, Class<?>>();
+	private final Map<String, Converter> parameterConverters = new HashMap<String, Converter>();
 
 	/**
 	 * 构造函数
@@ -28,7 +28,7 @@ public class BeanConverter implements Converter {
 	 * @throws IntrospectionException
 	 */
 	public BeanConverter(Class<?> clazz) throws IntrospectionException {
-		Map<String, PropertyDescriptor> propertyDescriptors = null;
+		Map<String, PropertyDescriptor> propertyDescriptors;
 
 		propertyDescriptors = BeanUtils.getPropertyDescriptors(clazz);
 
@@ -44,10 +44,10 @@ public class BeanConverter implements Converter {
 			writeMethods.put(property, method);
 
 			Class<?> type = propertyDescriptor.getPropertyType();
-			if(type == null) {
+			if (type == null) {
 				continue;
 			}
-			
+
 			parameterTypes.put(property, type);
 		}
 	}
@@ -64,7 +64,7 @@ public class BeanConverter implements Converter {
 
 	@Override
 	public Object convertValue(ContextProvider provider, String propertyName, Class<?> toType) {
-		Object result = null;
+		Object result;
 
 		try {
 			result = toType.newInstance();
@@ -74,7 +74,7 @@ public class BeanConverter implements Converter {
 
 		for (String parameter : provider.getRequestParameters().keySet()) {
 			Method method = writeMethods.get(parameter);
-			if(method == null) {
+			if (method == null) {
 				continue;
 			}
 			Class<?> returnType = parameterTypes.get(parameter);

@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import net.meteor.annotation.Path;
+import net.meteor.converter.ConverterFactory;
 import net.meteor.utils.ParameterNameDiscoverer;
 import net.meteor.utils.PathMatcher;
 import net.meteor.utils.ReflectionUtils;
@@ -39,9 +40,11 @@ public class PathDetector {
 
 	private final ParameterNameDiscoverer parameterNameDiscoverer;
 
+	private final ConverterFactory converterFactory;
+
 	private List<HandlerInterceptor> handlerInterceptors;
 
-	private Map<String, RestfulHandleContext> handleContextMap = new HashMap<String, RestfulHandleContext>();
+	private final Map<String, RestfulHandleContext> handleContextMap = new HashMap<String, RestfulHandleContext>();
 
 	// 热点路径缓存，
 	// private static final int DEFAULT_MAX_HOT_CACHE_SIZE = 1000;
@@ -59,10 +62,11 @@ public class PathDetector {
 	// private int hotCacheSize = DEFAULT_MAX_HOT_CACHE_SIZE;
 
 	public PathDetector(PathMatcher pathMatcher, UrlPathHelper urlPathHelper,
-			ParameterNameDiscoverer parameterNameDiscoverer) {
+			ParameterNameDiscoverer parameterNameDiscoverer, ConverterFactory converterFactory) {
 		this.pathMatcher = pathMatcher;
 		this.urlPathHelper = urlPathHelper;
 		this.parameterNameDiscoverer = parameterNameDiscoverer;
+		this.converterFactory = converterFactory;
 	}
 
 	/**
@@ -79,8 +83,8 @@ public class PathDetector {
 			return null;
 		}
 
-		HandlerInterceptor[] interceptors = (handlerInterceptors == null ? null
-				: (HandlerInterceptor[]) handlerInterceptors.toArray());
+		HandlerInterceptor[] interceptors = (handlerInterceptors == null ? null : handlerInterceptors
+				.toArray(new HandlerInterceptor[0]));
 
 		HandleChain chain = new HandleChain(interceptors, handleContext);
 		chain.setUriTemplateVariables(uriTemplateVariables);
@@ -94,7 +98,7 @@ public class PathDetector {
 	 * @param request
 	 * @return
 	 */
-	protected RequestHandleContext lookupHandleContext(HttpServletRequest request,
+	private RequestHandleContext lookupHandleContext(HttpServletRequest request,
 			Map<String, String> uriTemplateVariables) {
 		String lookupPath = urlPathHelper.getLookupPathForRequest(request);
 		if (LOGGER.isDebugEnabled()) {
@@ -249,7 +253,7 @@ public class PathDetector {
 	 * @param controller
 	 * @return
 	 */
-	protected void detectUrlsFromController(Object controller) {
+	private void detectUrlsFromController(Object controller) {
 		Class<?> controllerType = ReflectionUtils.getUserClass(controller);
 		Path path = controllerType.getAnnotation(Path.class);
 		if (path != null) {
@@ -275,7 +279,7 @@ public class PathDetector {
 	 * @param controller
 	 * @return
 	 */
-	protected void detectUrlsFromControllerMethods(Class<?> controllerType, final String typeLevelPath,
+	private void detectUrlsFromControllerMethods(Class<?> controllerType, final String typeLevelPath,
 			final Object controller) {
 
 		Set<Class<?>> controllerTypes = new LinkedHashSet<Class<?>>();
@@ -312,16 +316,18 @@ public class PathDetector {
 	/**
 	 * 将URL请求处理器注册到系统的处理方法集中
 	 * 
-	 * @param urls
 	 * @param path
+	 * @param method
+	 * @param controller
 	 */
-	protected void registerPath(String path, Method method, Object controller) {
+	private void registerPath(String path, Method method, Object controller) {
 		try {
 			RestfulHandleContext restfulHandler = handleContextMap.get(path);
 			if (restfulHandler == null) {
-				handleContextMap.put(path, new RestfulHandleContext(controller, method, parameterNameDiscoverer));
+				handleContextMap.put(path, new RestfulHandleContext(controller, method, parameterNameDiscoverer,
+						converterFactory));
 			} else {
-				restfulHandler.addHandleContext(controller, method, parameterNameDiscoverer);
+				restfulHandler.addHandleContext(controller, method, parameterNameDiscoverer, converterFactory);
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("注册方法[" + method + "]到处理路径[" + path + "]成功");

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import net.meteor.converter.ConverterFactory;
 import net.meteor.handler.ExceptionHandler;
 import net.meteor.handler.HandlerInterceptor;
 import net.meteor.handler.PathDetector;
@@ -116,4 +117,11 @@ public interface MeteorConfig {
 	 * @return
 	 */
 	PageRender getPageRender(ServletContext context);
+	
+	/**
+	 * 获取Converter生成器
+	 * 
+	 * @return
+	 */
+	ConverterFactory getConverterFactory();
 }

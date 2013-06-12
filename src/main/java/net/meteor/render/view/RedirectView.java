@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
  * 用于Forward操作的View
  * 
  * @author wuqh
- *
+ * 
  */
 public class RedirectView extends UrlBasedView implements View {
 
@@ -20,7 +20,7 @@ public class RedirectView extends UrlBasedView implements View {
 	@Override
 	public void render(HttpServletRequest request, HttpServletResponse response, Map<String, ?> model) throws Exception {
 
-		String targetUrl = getQueryUrl(request, response, model);
+		String targetUrl = getQueryUrl(request, model);
 		String encodedRedirectURL = response.encodeRedirectURL(targetUrl);
 
 		response.sendRedirect(encodedRedirectURL);

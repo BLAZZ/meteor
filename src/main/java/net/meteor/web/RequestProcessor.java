@@ -1,6 +1,7 @@
 package net.meteor.web;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ import net.meteor.multipart.MultipartParser;
 import net.meteor.render.MessageWriterFactory;
 import net.meteor.render.PageRender;
 import net.meteor.utils.ReflectionUtils;
-import net.meteor.utils.StaticFileScaner;
+import net.meteor.utils.StaticFileScanner;
 import net.meteor.utils.WebUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author wuqh
  * 
  */
-public class RequestProcessor {
+class RequestProcessor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RequestProcessor.class);
 
 	private static final String METEOR_CONFIG_CLASS = "configClass";
@@ -58,8 +59,8 @@ public class RequestProcessor {
 	private ExceptionHandler exceptionHandler;
 	// MessageWriter生成器
 	private MessageWriterFactory messageWriterFactory;
-	
-	private StaticFileScaner fileScaner;
+
+	private StaticFileScanner fileScanner;
 
 	public RequestProcessor(WebConfig webConfig) throws ServletException {
 		initMeteorConfig(webConfig);
@@ -74,7 +75,7 @@ public class RequestProcessor {
 		pageRender = null;
 		exceptionHandler = null;
 		messageWriterFactory = null;
-		fileScaner = null;
+		fileScanner = null;
 	}
 
 	private void initMeteorConfig(WebConfig webConfig) throws ServletException {
@@ -119,7 +120,7 @@ public class RequestProcessor {
 
 		encoding = webConfig.getInitParameter(ENCODING);
 
-		fileScaner = new StaticFileScaner(servletContext);
+		fileScanner = new StaticFileScanner(servletContext);
 	}
 
 	/**
@@ -137,9 +138,9 @@ public class RequestProcessor {
 		}
 		pathDetector.detectHandlers(controllers);
 	}
-	
+
 	public boolean isStaticFile(String url) {
-		return fileScaner.exist(url);
+		return fileScanner.exist(url);
 	}
 
 	/**
@@ -153,55 +154,26 @@ public class RequestProcessor {
 	public void process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		HttpServletRequest processedRequest = request;
 		HandleChain handleChain = null;
-		boolean multipartRequestParsed = false;
 
 		try {
 			Exception dispatchException = null;
 			ModelAndView handleResult = null;
 
 			// 设置编码格式
-			if (this.encoding != null && request.getCharacterEncoding() == null) {
-				request.setCharacterEncoding(this.encoding);
-			}
+			setEncoding(request);
 
 			// 打开DEBUG级别信息能看到所有进入的请求
-			if (LOGGER.isDebugEnabled()) {
-				StringBuffer sb = request.getRequestURL();
-				String query = request.getQueryString();
-				if (query != null && query.length() > 0) {
-					sb.append("?").append(query);
-				}
-				LOGGER.debug(request.getMethod() + " " + sb.toString());
-			}
+			debugQueryString(request);
 
 			try {
 				processedRequest = parseMultipart(request);
-				multipartRequestParsed = processedRequest != request;
 
 				// 获取当前request的处理器链
 				handleChain = getHandleChain(processedRequest);
-				if (handleChain == null || handleChain.getHandleContext() == null) {
-					noHandlerFound(processedRequest, response);
-					return;
-				}
 
-				RequestHandleContext handleContext = handleChain.getHandleContext();
+				RequestHandleContext handleContext = getRequestHandleContext(processedRequest, response, handleChain);
 
-				// 处理last-modified头信息（需要requestHandler支持）
-				String method = processedRequest.getMethod();
-				boolean isGet = "GET".equals(method);
-				if (isGet || "HEAD".equals(method)) {
-					long lastModified = requestHandler.getLastModified(processedRequest);
-					if (LOGGER.isDebugEnabled()) {
-						String requestUri = meteorConfig.getUrlPathHelper().getRequestUri(processedRequest);
-						LOGGER.debug("[" + requestUri + "]的Last-Modified值是: " + lastModified);
-					}
-					if (WebUtils.checkNotModified(lastModified, processedRequest, response) && isGet) {
-						return;
-					}
-				}
-
-				if (!handleChain.doPreHandle(processedRequest, response)) {
+				if (!preHandleProcess(processedRequest, response, handleChain, handleContext)) {
 					return;
 				}
 
@@ -220,10 +192,109 @@ public class RequestProcessor {
 		} catch (Error err) {
 			doAfterCompletionWithError(processedRequest, response, handleChain, err);
 		} finally {
-			if (multipartRequestParsed) {
+			if (isMultipartRequestParsed(processedRequest, request)) {
 				cleanupMultipart(processedRequest);
 			}
 		}
+	}
+
+	/**
+	 * 预处理，判断处理方法是存在，判断last-modified头信息，以及进行HandlerInterceptor的预处理
+	 * 
+	 * @param processedRequest
+	 * @param response
+	 * @param handleChain
+	 * @param handleContext
+	 * @return true如果可以继续进行处理
+	 * @throws Exception
+	 */
+	private boolean preHandleProcess(HttpServletRequest processedRequest, HttpServletResponse response,
+			HandleChain handleChain, RequestHandleContext handleContext) throws Exception {
+		if (handleContext == null) {
+			noHandlerFound(processedRequest, response);
+			return false;
+		}
+
+		// 处理last-modified头信息（需要requestHandler支持）
+		if (isNotModified(processedRequest, response)) {
+			return false;
+		}
+
+		if (!handleChain.doPreHandle(processedRequest, response)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * 设置编码格式
+	 * 
+	 * @param request
+	 * @throws UnsupportedEncodingException
+	 */
+	private void setEncoding(HttpServletRequest request) throws UnsupportedEncodingException {
+		if (this.encoding != null && request.getCharacterEncoding() == null) {
+			request.setCharacterEncoding(this.encoding);
+		}
+	}
+
+	/**
+	 * 打开DEBUG级别信息能看到所有进入的请求
+	 * 
+	 * @param request
+	 */
+	private void debugQueryString(HttpServletRequest request) {
+		if (LOGGER.isDebugEnabled()) {
+			StringBuffer sb = request.getRequestURL();
+			String query = request.getQueryString();
+			if (query != null && query.length() > 0) {
+				sb.append("?").append(query);
+			}
+			LOGGER.debug(request.getMethod() + " " + sb.toString());
+		}
+	}
+
+	/**
+	 * 获取RequestHandleContext
+	 * 
+	 * @param processedRequest
+	 * @param response
+	 * @param handleChain
+	 * @return
+	 * @throws Exception
+	 */
+	private RequestHandleContext getRequestHandleContext(HttpServletRequest processedRequest,
+			HttpServletResponse response, HandleChain handleChain) throws Exception {
+		if (handleChain == null || handleChain.getHandleContext() == null) {
+			return null;
+		}
+
+		return handleChain.getHandleContext();
+	}
+
+	/**
+	 * 处理last-modified头信息
+	 * 
+	 * @param processedRequest
+	 * @param response
+	 * 
+	 */
+	private boolean isNotModified(HttpServletRequest processedRequest, HttpServletResponse response) {
+		String method = processedRequest.getMethod();
+		boolean isGet = "GET".equals(method);
+		if (isGet || "HEAD".equals(method)) {
+			long lastModified = requestHandler.getLastModified(processedRequest);
+			if (LOGGER.isDebugEnabled()) {
+				String requestUri = meteorConfig.getUrlPathHelper().getRequestUri(processedRequest);
+				LOGGER.debug("[" + requestUri + "]的Last-Modified值是: " + lastModified);
+			}
+			if (WebUtils.checkNotModified(lastModified, processedRequest, response) && isGet) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -233,7 +304,7 @@ public class RequestProcessor {
 	 * @return
 	 * @throws MultipartException
 	 */
-	protected HttpServletRequest parseMultipart(HttpServletRequest request) throws MultipartException {
+	private HttpServletRequest parseMultipart(HttpServletRequest request) throws MultipartException {
 		if (this.multipartParser != null && this.multipartParser.isMultipart(request)) {
 			if (request instanceof MultipartHttpServletRequest) {
 				LOGGER.debug("request已经是MultipartHttpServletRequest对象了，不做解析");
@@ -245,11 +316,22 @@ public class RequestProcessor {
 	}
 
 	/**
+	 * 判断请求是否已经被解析成文件上传请求
+	 * 
+	 * @param processedRequest
+	 * @param request
+	 * @return
+	 */
+	private boolean isMultipartRequestParsed(HttpServletRequest processedRequest, HttpServletRequest request) {
+		return processedRequest != request;
+	}
+
+	/**
 	 * 清除文件缓存
 	 * 
 	 * @param servletRequest
 	 */
-	protected void cleanupMultipart(HttpServletRequest servletRequest) {
+	private void cleanupMultipart(HttpServletRequest servletRequest) {
 		this.multipartParser.cleanupMultipart((MultipartHttpServletRequest) servletRequest);
 	}
 
@@ -260,7 +342,7 @@ public class RequestProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	protected HandleChain getHandleChain(HttpServletRequest request) throws Exception {
+	private HandleChain getHandleChain(HttpServletRequest request) {
 		return this.pathDetector.getHandleChain(request);
 	}
 
@@ -271,7 +353,7 @@ public class RequestProcessor {
 	 * @param response
 	 * @throws Exception
 	 */
-	protected void noHandlerFound(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	private void noHandlerFound(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String requestUri = meteorConfig.getUrlPathHelper().getRequestUri(request);
 		LOGGER.warn("没有找到URI [" + requestUri + "]对应的Controller");
 		response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -317,10 +399,10 @@ public class RequestProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	protected ModelAndView processHandlerException(HttpServletRequest request, HttpServletResponse response,
+	private ModelAndView processHandlerException(HttpServletRequest request, HttpServletResponse response,
 			RequestHandleContext handleContext, Exception ex) throws Exception {
 
-		ModelAndView exResult = null;
+		ModelAndView exResult;
 		if (exceptionHandler == null) {
 			LOGGER.debug("系统没有配置异常处理器，无法处理异常");
 			return null;
@@ -358,8 +440,7 @@ public class RequestProcessor {
 	 * @param result
 	 * @throws Exception
 	 */
-	protected void render(HttpServletRequest request, HttpServletResponse response, ModelAndView result)
-			throws Exception {
+	private void render(HttpServletRequest request, HttpServletResponse response, ModelAndView result) {
 		if (result == null) {
 			LOGGER.debug("返回的ModelAndView为空，不进入任何页面");
 			return;

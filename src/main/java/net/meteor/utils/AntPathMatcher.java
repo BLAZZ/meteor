@@ -46,7 +46,7 @@ public class AntPathMatcher implements PathMatcher {
 	private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{[^/]+?\\}");
 
 	/** 默认路径分隔符： "/" */
-	public static final String DEFAULT_PATH_SEPARATOR = "/";
+	private static final String DEFAULT_PATH_SEPARATOR = "/";
 
 	private String pathSeparator = DEFAULT_PATH_SEPARATOR;
 
@@ -79,40 +79,40 @@ public class AntPathMatcher implements PathMatcher {
 	 * @return <code>true</code> 如果给定<code>path</code>可以匹配给定<code>pattern</code>
 	 *         ， <code>false</code> 如果不匹配
 	 */
-	protected boolean doMatch(String pattern, String path, boolean fullMatch, Map<String, String> uriTemplateVariables) {
+	private boolean doMatch(String pattern, String path, boolean fullMatch, Map<String, String> uriTemplateVariables) {
 		// 检查pattern和path是否都以“/”开头或者都不是以“/”开头，否则，返回false。
 		if (path.startsWith(this.pathSeparator) != pattern.startsWith(this.pathSeparator)) {
 			return false;
 		}
 
-		// 将pattern和path都以“/”为分隔符，分割成两个字符串数组pattDirs和pathDirs。
-		String[] pattDirs = StringUtils.split(pattern, this.pathSeparator);
+		// 将pattern和path都以“/”为分隔符，分割成两个字符串数组patternDirs和pathDirs。
+		String[] patternDirs = StringUtils.split(pattern, this.pathSeparator);
 		// StringUtils.tokenizeToStringArray(pattern, this.pathSeparator);
 		String[] pathDirs = StringUtils.split(path, this.pathSeparator);
 		// StringUtils.tokenizeToStringArray(path, this.pathSeparator);
 
-		int pattIdxStart = 0;
-		int pattIdxEnd = pattDirs.length - 1;
+		int patternIdxStart = 0;
+		int patternIdxEnd = patternDirs.length - 1;
 		int pathIdxStart = 0;
 		int pathIdxEnd = pathDirs.length - 1;
 
-		// 从头遍历两个字符串数组，如果遇到两给字符串不匹配，返回false。否则，直到遇到pattDirs中的“**”字符串，或pattDirs和pathDirs中有一个遍历完。
-		while (pattIdxStart <= pattIdxEnd && pathIdxStart <= pathIdxEnd) {
-			String patDir = pattDirs[pattIdxStart];
+		// 从头遍历两个字符串数组，如果遇到两给字符串不匹配，返回false。否则，直到遇到patternDirs中的“**”字符串，或patternDirs和pathDirs中有一个遍历完。
+		while (patternIdxStart <= patternIdxEnd && pathIdxStart <= pathIdxEnd) {
+			String patDir = patternDirs[patternIdxStart];
 			if ("**".equals(patDir)) {
 				break;
 			}
 			if (!matchStrings(patDir, pathDirs[pathIdxStart], uriTemplateVariables)) {
 				return false;
 			}
-			pattIdxStart++;
+			patternIdxStart++;
 			pathIdxStart++;
 		}
 
 		// 如果pathDirs遍历完
 		if (pathIdxStart > pathIdxEnd) {
-			// 如果pattDirs也遍历完了，并且pattern和path都以“/”结尾或都不以“/”，返回true，否则返回false。
-			if (pattIdxStart > pattIdxEnd) {
+			// 如果patternDirs也遍历完了，并且pattern和path都以“/”结尾或都不以“/”，返回true，否则返回false。
+			if (patternIdxStart > patternIdxEnd) {
 				return (pattern.endsWith(this.pathSeparator) ? path.endsWith(this.pathSeparator) : !path
 						.endsWith(this.pathSeparator));
 			}
@@ -120,43 +120,44 @@ public class AntPathMatcher implements PathMatcher {
 			if (!fullMatch) {
 				return true;
 			}
-			// 如果pattDirs只剩最后一个“*”，而且path以“/”结尾，返回true。
-			if (pattIdxStart == pattIdxEnd && pattDirs[pattIdxStart].equals("*") && path.endsWith(this.pathSeparator)) {
+			// 如果patternDirs只剩最后一个“*”，而且path以“/”结尾，返回true。
+			if (patternIdxStart == patternIdxEnd && patternDirs[patternIdxStart].equals("*")
+					&& path.endsWith(this.pathSeparator)) {
 				return true;
 			}
-			// 如果pattDirs剩下的字符串都是“**”，返回true，否则返回false。
-			for (int i = pattIdxStart; i <= pattIdxEnd; i++) {
-				if (!pattDirs[i].equals("**")) {
+			// 如果patternDirs剩下的字符串都是“**”，返回true，否则返回false。
+			for (int i = patternIdxStart; i <= patternIdxEnd; i++) {
+				if (!patternDirs[i].equals("**")) {
 					return false;
 				}
 			}
 			return true;
-		} else if (pattIdxStart > pattIdxEnd) {
-			// 如果pattDirs遍历完了但是pathDirs没有遍历完，返回false。
+		} else if (patternIdxStart > patternIdxEnd) {
+			// 如果patternDirs遍历完了但是pathDirs没有遍历完，返回false。
 			return false;
-		} else if (!fullMatch && "**".equals(pattDirs[pattIdxStart])) {
-			// 如果pathDirs和pattDirs都没有遍历完，不需要fullMatch，而且pattDirs下一个字符串为“**”时，返回true。
+		} else if (!fullMatch && "**".equals(patternDirs[patternIdxStart])) {
+			// 如果pathDirs和patternDirs都没有遍历完，不需要fullMatch，而且patternDirs下一个字符串为“**”时，返回true。
 			return true;
 		}
 
-		// 从后开始遍历pathDirs和pattDirs，如果遇到两个字符串不匹配，返回false。否则，直到遇到pattDirs中的“**”字符串，或pathDirs和pattDirs中有一个和之前的遍历索引相遇。
-		while (pattIdxStart <= pattIdxEnd && pathIdxStart <= pathIdxEnd) {
-			String patDir = pattDirs[pattIdxEnd];
+		// 从后开始遍历pathDirs和patternDirs，如果遇到两个字符串不匹配，返回false。否则，直到遇到patternDirs中的“**”字符串，或pathDirs和patternDirs中有一个和之前的遍历索引相遇。
+		while (patternIdxStart <= patternIdxEnd && pathIdxStart <= pathIdxEnd) {
+			String patDir = patternDirs[patternIdxEnd];
 			if (patDir.equals("**")) {
 				break;
 			}
 			if (!matchStrings(patDir, pathDirs[pathIdxEnd], uriTemplateVariables)) {
 				return false;
 			}
-			pattIdxEnd--;
+			patternIdxEnd--;
 			pathIdxEnd--;
 		}
 
 		// 如果pathDirs遍历完
 		if (pathIdxStart > pathIdxEnd) {
-			// 如果没有遍历完的pattDirs中所有字符串都是“**”，则返回true，否则，返回false。
-			for (int i = pattIdxStart; i <= pattIdxEnd; i++) {
-				if (!pattDirs[i].equals("**")) {
+			// 如果没有遍历完的patternDirs中所有字符串都是“**”，则返回true，否则，返回false。
+			for (int i = patternIdxStart; i <= patternIdxEnd; i++) {
+				if (!patternDirs[i].equals("**")) {
 					return false;
 				}
 			}
@@ -164,30 +165,30 @@ public class AntPathMatcher implements PathMatcher {
 		}
 
 		// 如果pathDirs没有遍历完
-		while (pattIdxStart != pattIdxEnd && pathIdxStart <= pathIdxEnd) {
+		while (patternIdxStart != patternIdxEnd && pathIdxStart <= pathIdxEnd) {
 			int patIdxTmp = -1;
 			// 查找到pattern中的下一个“**”字符串，其索引号为patIdxTmp
-			for (int i = pattIdxStart + 1; i <= pattIdxEnd; i++) {
-				if (pattDirs[i].equals("**")) {
+			for (int i = patternIdxStart + 1; i <= patternIdxEnd; i++) {
+				if (patternDirs[i].equals("**")) {
 					patIdxTmp = i;
 					break;
 				}
 			}
 			// 去除pattern相邻的“**”字符，即“**/**”的情况
-			if (patIdxTmp == pattIdxStart + 1) {
-				pattIdxStart++;
+			if (patIdxTmp == patternIdxStart + 1) {
+				patternIdxStart++;
 				continue;
 			}
-			
+
 			// 将pattern两个“**”的间隔距离记为patLength，
-			int patLength = (patIdxTmp - pattIdxStart - 1);
+			int patLength = (patIdxTmp - patternIdxStart - 1);
 			int strLength = (pathIdxEnd - pathIdxStart + 1);
 			int foundIdx = -1;
 
 			// 从path的开通循环查找和pattern两个“**”间的所有元素都匹配的部分
 			strLoop: for (int i = 0; i <= strLength - patLength; i++) {
 				for (int j = 0; j < patLength; j++) {
-					String subPat = pattDirs[pattIdxStart + j + 1];
+					String subPat = patternDirs[patternIdxStart + j + 1];
 					String subStr = pathDirs[pathIdxStart + i + j];
 					if (!matchStrings(subPat, subStr, uriTemplateVariables)) {
 						continue strLoop;
@@ -204,13 +205,13 @@ public class AntPathMatcher implements PathMatcher {
 			}
 
 			// 将pattern的起始位置定位到后面那个**之前，再进行同样的循环
-			pattIdxStart = patIdxTmp;
+			patternIdxStart = patIdxTmp;
 			pathIdxStart = foundIdx + patLength;
 		}
 
-		// 如果pattDirs没有遍历完，但剩下的元素都是“**”，返回true，否则返回false
-		for (int i = pattIdxStart; i <= pattIdxEnd; i++) {
-			if (!pattDirs[i].equals("**")) {
+		// 如果patternDirs没有遍历完，但剩下的元素都是“**”，返回true，否则返回false
+		for (int i = patternIdxStart; i <= patternIdxEnd; i++) {
+			if (!patternDirs[i].equals("**")) {
 				return false;
 			}
 		}
@@ -473,7 +474,7 @@ public class AntPathMatcher implements PathMatcher {
 	private static class AntPatternComparator implements Comparator<String> {
 
 		private final String path;
-		
+
 		private AntPatternComparator(String path) {
 			this.path = path;
 		}
@@ -565,7 +566,7 @@ public class AntPathMatcher implements PathMatcher {
 
 		private final Pattern pattern;
 
-		private String str;
+		private final String str;
 
 		private final List<String> variableNames = new LinkedList<String>();
 

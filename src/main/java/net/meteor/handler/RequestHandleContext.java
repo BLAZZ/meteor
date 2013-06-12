@@ -22,26 +22,29 @@ import net.meteor.utils.ParameterNameDiscoverer;
  * 
  */
 public class RequestHandleContext {
-	
+
 	private final ParameterNameDiscoverer parameterNameDiscoverer;
 	private final Object controller;
 	private final Method method;
-	private Map<String, Converter> pathVarConverters = new HashMap<String, Converter>();
-	private Map<String, Integer> pathVarIndexs = new HashMap<String, Integer>();
+	private final ConverterFactory converterFactory;
+	private final Map<String, Converter> pathVarConverters = new HashMap<String, Converter>();
+	private final Map<String, Integer> pathVarIndexes = new HashMap<String, Integer>();
 	private Converter[] parameterConverters;
 	private String[] paramNames;
 	private Class<?>[] paramTypes;
 	private Validation validation;
 	private RespBody respBody;
 
-	public RequestHandleContext(Object controller, Method method, ParameterNameDiscoverer parameterNameDiscoverer) {
+	public RequestHandleContext(Object controller, Method method, ParameterNameDiscoverer parameterNameDiscoverer,
+			ConverterFactory converterFactory) {
 		this.controller = controller;
 		this.method = method;
 		this.parameterNameDiscoverer = parameterNameDiscoverer;
+		this.converterFactory = converterFactory;
 		parseMethodInfo(method);
 	}
 
-	public void parseMethodInfo(Method method) {
+	private void parseMethodInfo(Method method) {
 		RespBody respBody = method.getAnnotation(RespBody.class);
 		this.respBody = respBody;
 
@@ -82,12 +85,13 @@ public class RequestHandleContext {
 			}
 
 			if (pathVarValue != null) {
-				Converter converter = ConverterFactory.getUriVariableConverter(patternValue);
+				Converter converter = converterFactory.getUriVariableConverter(patternValue);
 				parameterConverters[index] = null;
 				pathVarConverters.put(pathVarValue, converter);
-				pathVarIndexs.put(pathVarValue, index);
+				pathVarIndexes.put(pathVarValue, index);
 			} else {
-				Converter converter = ConverterFactory.getConverter(method, paramNames, index, clazz, patternValue, false);
+				Converter converter = converterFactory.getConverter(method, paramNames, index, clazz, patternValue,
+						false);
 				parameterConverters[index] = converter;
 			}
 
@@ -118,8 +122,8 @@ public class RequestHandleContext {
 		return pathVarConverters;
 	}
 
-	public Map<String, Integer> getPathVarIndexs() {
-		return pathVarIndexs;
+	public Map<String, Integer> getPathVarIndexes() {
+		return pathVarIndexes;
 	}
 
 	public Class<?>[] getParamTypes() {

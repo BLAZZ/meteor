@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory;
  * Bean操作工具类
  * 
  * @author wuqh
- *
+ * 
  */
 public class BeanUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BeanUtils.class);
 
 	private static final Map<Class<?>, Map<String, PropertyDescriptor>> PROPERTY_DESCRIPTOR_CACHE = new WeakHashMap<Class<?>, Map<String, PropertyDescriptor>>();
-	private static Map<Class<?>, Object> primitiveDefaults;
+	private static final Map<Class<?>, Object> primitiveDefaults;
 
 	static {
 		Map<Class<?>, Object> map = new HashMap<Class<?>, Object>();
@@ -49,7 +49,7 @@ public class BeanUtils {
 		map.put(BigDecimal.class, new BigDecimal(0.0));
 		primitiveDefaults = Collections.unmodifiableMap(map);
 	}
-	
+
 	/**
 	 * 获取指定类型所有的PropertyDescriptor
 	 * 
@@ -59,7 +59,7 @@ public class BeanUtils {
 	 */
 	public static Map<String, PropertyDescriptor> getPropertyDescriptors(Class<?> clazz) throws IntrospectionException {
 		Map<String, PropertyDescriptor> propertyDescriptors = PROPERTY_DESCRIPTOR_CACHE.get(clazz);
-	
+
 		if (propertyDescriptors == null) {
 			BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
 			propertyDescriptors = new HashMap<String, PropertyDescriptor>();
@@ -69,24 +69,10 @@ public class BeanUtils {
 				propertyDescriptors.put(property, descriptor);
 			}
 		}
-	
+
 		return propertyDescriptors;
 	}
 
-	/**
-	 * 获取指定类、指定参数的PropertyDescriptor
-	 * 
-	 * @param clazz
-	 * @param property
-	 * @return
-	 * @throws IntrospectionException
-	 */
-	public static PropertyDescriptor getPropertyDescriptor(Class<?> clazz, String property)
-			throws IntrospectionException {
-		Map<String, PropertyDescriptor> propertyDescriptors = getPropertyDescriptors(clazz);
-		return (propertyDescriptors == null ? null : propertyDescriptors.get(property));
-	}
-	
 	/**
 	 * 判断类型是否为简单的类型（基本类型或者其他能转换为String的简单类型）
 	 * 
@@ -99,7 +85,7 @@ public class BeanUtils {
 				|| Date.class.isAssignableFrom(clazz) || clazz.equals(URI.class) || clazz.equals(URL.class)
 				|| clazz.equals(Locale.class) || clazz.equals(Class.class);
 	}
-	
+
 	/**
 	 * 是否为可以进行转换处理的简单类型（Number只能为DIgDecimal或者BigInteger，CharSequence只能为String）
 	 * 
@@ -109,7 +95,9 @@ public class BeanUtils {
 	public static boolean isConvertableSimpleType(Class<?> clazz) {
 		if (isSimpleType(clazz)) {
 			if (Number.class.isAssignableFrom(clazz)) {
-				if (clazz.equals(BigDecimal.class) || clazz.equals(BigInteger.class) || clazz.equals(Number.class)) {
+				if (clazz.isPrimitive() || ClassUtils.wrapperToPrimitive(clazz) != null
+						|| clazz.equals(BigDecimal.class) || clazz.equals(BigInteger.class)
+						|| clazz.equals(Number.class)) {
 					return true;
 				} else {
 					return false;
@@ -135,7 +123,7 @@ public class BeanUtils {
 		return false;
 
 	}
-	
+
 	/**
 	 * 将获取到到的值转换为指定类型的对象
 	 * 
@@ -150,85 +138,85 @@ public class BeanUtils {
 				return value;
 
 			if ((toType == Integer.class) || (toType == Integer.TYPE))
-				return  Integer.valueOf(value);
+				return Integer.valueOf(value);
 
 			if ((toType == Double.class) || (toType == Double.TYPE))
-				return  Double.valueOf(value);
+				return Double.valueOf(value);
 
 			if ((toType == Long.class) || (toType == Long.TYPE))
-				return  Long.valueOf(value);
+				return Long.valueOf(value);
 
 			if ((toType == Boolean.class) || (toType == Boolean.TYPE))
-				return  Boolean.valueOf(value);
+				return Boolean.valueOf(value);
 
 			if ((toType == Byte.class) || (toType == Byte.TYPE))
-				return  Byte.valueOf(value);
+				return Byte.valueOf(value);
 
 			if ((toType == Character.class) || (toType == Character.TYPE))
-				return  Character.valueOf(value.charAt(0));
+				return Character.valueOf(value.charAt(0));
 
 			if ((toType == Short.class) || (toType == Short.TYPE))
-				return  Short.valueOf(value);
+				return Short.valueOf(value);
 
 			if ((toType == Float.class) || (toType == Float.TYPE))
-				return  Float.valueOf(value);
+				return Float.valueOf(value);
 
 			if (toType == BigInteger.class)
-				return  new BigInteger(value);
+				return new BigInteger(value);
 
 			if (toType == BigDecimal.class || toType == Number.class)
-				return  new BigDecimal(value);
+				return new BigDecimal(value);
 
 			if (Enum.class.isAssignableFrom(toType))
-				return  Enum.valueOf((Class<Enum>) toType, value);
+				return Enum.valueOf((Class<Enum>) toType, value);
 
 			if (toType == URI.class) {
 				try {
-					return  new URI(value);
+					return new URI(value);
 				} catch (URISyntaxException e) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("转换到URI失败：" + e.getMessage(), e);
 					}
-					return  null;
+					return null;
 				}
 			}
 
 			if (URL.class.equals(toType)) {
 				try {
-					return  new URL(value);
+					return new URL(value);
 				} catch (MalformedURLException e) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("转换到URL失败：" + e.getMessage(), e);
 					}
-					return  null;
+					return null;
 				}
 			}
 
 			if (toType == Locale.class)
-				return  new Locale(value);
+				return new Locale(value);
 
 			if (toType == Class.class) {
 				try {
-					return  Class.forName(value);
+					return Class.forName(value);
 				} catch (ClassNotFoundException e) {
 					if (LOGGER.isDebugEnabled()) {
 						LOGGER.debug("转换到Class失败：" + e.getMessage(), e);
 					}
-					return  null;
+					return null;
 				}
 			}
 
 		} else {
 			if (toType.isPrimitive()) {
-				return  primitiveDefaults.get(toType);
+				return primitiveDefaults.get(toType);
 			}
 			if (toType == String.class)
-				return  value;
+				return value;
 		}
 
 		return null;
 	}
-	
+
 	/**
 	 * 将数组对象转换为对象数组
 	 * 
@@ -257,7 +245,7 @@ public class BeanUtils {
 		}
 		return newArray;
 	}
-	
+
 	/**
 	 * 获取数组中指定索引的对象
 	 * 

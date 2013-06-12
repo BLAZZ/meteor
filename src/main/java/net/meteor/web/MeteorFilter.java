@@ -15,35 +15,34 @@ import javax.servlet.http.HttpServletResponse;
  * Meteor框架的Filter方式实现
  * 
  * @author wuqh
- *
+ * 
  */
 public class MeteorFilter implements Filter {
 	private RequestProcessor processor;
 
 	public void init(FilterConfig filterConfig) throws ServletException {
-		FliterWebConfig webConfig = new FliterWebConfig(filterConfig);
+		FilterWebConfig webConfig = new FilterWebConfig(filterConfig);
 		processor = new RequestProcessor(webConfig);
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
-		
+
 		HttpServletRequest processedRequest = (HttpServletRequest) request;
 		HttpServletResponse processedResponse = (HttpServletResponse) response;
-		
+
 		String url = processedRequest.getServletPath();
-		
-		if(processor.isStaticFile(url)) {
+
+		if (processor.isStaticFile(url)) {
 			chain.doFilter(request, response);
 		} else {
 			processor.process(processedRequest, processedResponse);
 		}
-		
+
 	}
 
 	public void destroy() {
 		processor.destroy();
 	}
 
-	
 }

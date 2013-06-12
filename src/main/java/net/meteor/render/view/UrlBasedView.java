@@ -13,7 +13,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import net.meteor.utils.Assert;
 import net.meteor.utils.BeanUtils;
@@ -25,18 +24,18 @@ import org.apache.commons.lang.StringUtils;
  * URL相关处理的View，一般用于Redirect或者Forward处理
  * 
  * @author wuqh
- *
+ * 
  */
 public abstract class UrlBasedView implements RenderableView {
-	protected final String url;
+	private final String url;
 	// 是否在url前加上getContextPath
-	protected boolean contextRelative = true;
+	private boolean contextRelative = true;
 	private static final Pattern URI_TEMPLATE_VARIABLE_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
-	protected Map<String, String> uriTemplateVariables;
+	private Map<String, String> uriTemplateVariables;
 	// 是否解析resolveUriTemplate
-	protected boolean resolveUriTemplate = true;
+	private boolean resolveUriTemplate = true;
 
-	public UrlBasedView(String url) {
+	UrlBasedView(String url) {
 		this.url = url;
 	}
 
@@ -64,14 +63,13 @@ public abstract class UrlBasedView implements RenderableView {
 	/**
 	 * 根据Model中的参数获取用于访问的URL
 	 * 
+	 * 
 	 * @param request
-	 * @param response
 	 * @param model
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	protected String getQueryUrl(HttpServletRequest request, HttpServletResponse response, Map<String, ?> model)
-			throws UnsupportedEncodingException {
+	String getQueryUrl(HttpServletRequest request, Map<String, ?> model) throws UnsupportedEncodingException {
 		StringBuilder targetUrl = new StringBuilder();
 		if (this.contextRelative && url.startsWith("/")) {
 			targetUrl.append(request.getContextPath());
@@ -103,8 +101,8 @@ public abstract class UrlBasedView implements RenderableView {
 	 * @throws UnsupportedEncodingException
 	 */
 	@SuppressWarnings("unchecked")
-	protected void buildQueryString(HttpServletRequest request, StringBuilder targetUrl, Map<String, ?> model,
-			String enc) throws UnsupportedEncodingException {
+	void buildQueryString(HttpServletRequest request, StringBuilder targetUrl, Map<String, ?> model, String enc)
+			throws UnsupportedEncodingException {
 
 		if (StringUtils.isNotBlank(targetUrl.toString())) {
 			// 截取URL中“#”号前的部分，#后的放入到fragment，需要在最后生成URL后拼接的末尾
@@ -119,16 +117,16 @@ public abstract class UrlBasedView implements RenderableView {
 			boolean first = (targetUrl.toString().indexOf('?') < 0);
 			for (Map.Entry<String, Object> entry : queryProperties(model).entrySet()) {
 				Object rawValue = entry.getValue();
-				Iterator<Object> valueIter;
+				Iterator<Object> valueIterator;
 				if (rawValue != null && rawValue.getClass().isArray()) {
-					valueIter = Arrays.asList(BeanUtils.toObjectArray(rawValue)).iterator();
+					valueIterator = Arrays.asList(BeanUtils.toObjectArray(rawValue)).iterator();
 				} else if (rawValue instanceof Collection) {
-					valueIter = ((Collection<Object>) rawValue).iterator();
+					valueIterator = ((Collection<Object>) rawValue).iterator();
 				} else {
-					valueIter = Collections.singleton(rawValue).iterator();
+					valueIterator = Collections.singleton(rawValue).iterator();
 				}
-				while (valueIter.hasNext()) {
-					Object value = valueIter.next();
+				while (valueIterator.hasNext()) {
+					Object value = valueIterator.next();
 					if (first) {
 						targetUrl.append('?');
 						first = false;
@@ -153,10 +151,10 @@ public abstract class UrlBasedView implements RenderableView {
 	 * @param model
 	 * @return
 	 */
-	protected Map<String, Object> queryProperties(Map<String, ?> model) {
+	private Map<String, Object> queryProperties(Map<String, ?> model) {
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		for (Map.Entry<String, ?> entry : model.entrySet()) {
-			if (isEligibleProperty(entry.getKey(), entry.getValue())) {
+			if (isEligibleProperty(entry.getValue())) {
 				result.put(entry.getKey(), entry.getValue());
 			}
 		}
@@ -166,12 +164,12 @@ public abstract class UrlBasedView implements RenderableView {
 	/**
 	 * 判断适合用于生成查询参数
 	 * 
-	 * @param key
+	 * 
 	 * @param value
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	protected boolean isEligibleProperty(String key, Object value) {
+	protected boolean isEligibleProperty(Object value) {
 		if (value == null) {
 			return false;
 		}
@@ -215,7 +213,7 @@ public abstract class UrlBasedView implements RenderableView {
 	 * @param value
 	 * @return
 	 */
-	protected boolean isEligibleValue(Object value) {
+	private boolean isEligibleValue(Object value) {
 
 		return (value != null && isSimpleValueType(value.getClass()));
 	}
@@ -238,7 +236,7 @@ public abstract class UrlBasedView implements RenderableView {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	protected String urlEncode(String input, String encoding) throws UnsupportedEncodingException {
+	private String urlEncode(String input, String encoding) throws UnsupportedEncodingException {
 		return (input != null ? URLEncoder.encode(input, encoding) : null);
 	}
 
@@ -251,7 +249,7 @@ public abstract class UrlBasedView implements RenderableView {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	protected StringBuilder replaceUriTemplateVariables(String targetUrl, Map<String, ?> model, String encoding)
+	private StringBuilder replaceUriTemplateVariables(String targetUrl, Map<String, ?> model, String encoding)
 			throws UnsupportedEncodingException {
 		StringBuilder result = new StringBuilder();
 		Matcher m = URI_TEMPLATE_VARIABLE_PATTERN.matcher(targetUrl);

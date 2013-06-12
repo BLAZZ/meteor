@@ -30,7 +30,7 @@ import freemarker.template.Template;
  * 基于FreeMarker的PageRender实现
  * 
  * @author wuqh
- *
+ * 
  */
 public class FreeMarkerPageRender extends AbstractPageRender implements PageRender {
 	private static final String PAGE_SUFFIX = ".ftl";
@@ -43,12 +43,12 @@ public class FreeMarkerPageRender extends AbstractPageRender implements PageRend
 		initServletContext(servletContext);
 	}
 
-	protected void initServletContext(ServletContext servletContext) {
+	private void initServletContext(ServletContext servletContext) {
 		this.taglibFactory = new TaglibFactory(servletContext);
 		configuration = createConfiguration(servletContext);
 	}
 
-	public Configuration createConfiguration(ServletContext servletContext) {
+	private Configuration createConfiguration(ServletContext servletContext) {
 		Configuration config = new Configuration();
 
 		if (this.defaultEncoding != null) {
@@ -63,7 +63,8 @@ public class FreeMarkerPageRender extends AbstractPageRender implements PageRend
 	}
 
 	@Override
-	public void doRender(HttpServletRequest request, HttpServletResponse response, String viewName, Map<String, ?> model) {
+	protected void doRender(HttpServletRequest request, HttpServletResponse response, String viewName,
+			Map<String, ?> model) {
 		String path = getPagePrefix() + viewName + PAGE_SUFFIX;
 
 		SimpleHash rootMap = buildTemplateModel(model, request, response);
@@ -76,8 +77,7 @@ public class FreeMarkerPageRender extends AbstractPageRender implements PageRend
 
 	}
 
-	protected SimpleHash buildTemplateModel(Map<String, ?> model, HttpServletRequest request,
-			HttpServletResponse response) {
+	private SimpleHash buildTemplateModel(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) {
 		SimpleHash fmModel = new SimpleHash(getObjectWrapper());
 		fmModel.put(FreemarkerServlet.KEY_JSP_TAGLIBS, this.taglibFactory);
 		fmModel.put(FreemarkerServlet.KEY_SESSION, buildSessionModel(request, response));
@@ -96,16 +96,16 @@ public class FreeMarkerPageRender extends AbstractPageRender implements PageRend
 		}
 	}
 
-	protected ObjectWrapper getObjectWrapper() {
+	private ObjectWrapper getObjectWrapper() {
 		ObjectWrapper ow = getConfiguration().getObjectWrapper();
 		return (ow != null ? ow : ObjectWrapper.DEFAULT_WRAPPER);
 	}
 
-	public Configuration getConfiguration() {
+	private Configuration getConfiguration() {
 		return configuration;
 	}
 
-	public String getEncoding() {
+	private String getEncoding() {
 		return (StringUtils.isBlank(encoding) ? defaultEncoding : encoding);
 	}
 

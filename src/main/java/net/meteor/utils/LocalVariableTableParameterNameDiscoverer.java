@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LocalVariableTableParameterNameDiscoverer implements ParameterNameDiscoverer {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(LocalVariableTableParameterNameDiscoverer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LocalVariableTableParameterNameDiscoverer.class);
 
 	// 用于标记没有DEBUG信息（DEBUG和CODE信息）的类文件
 	private static final Map<Member, String[]> NO_DEBUG_INFO_MAP = Collections.emptyMap();
@@ -74,7 +74,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 		InputStream is = clazz.getResourceAsStream(ReflectionUtils.getClassFileName(clazz));
 		if (is == null) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("无法找到[" + clazz + "]的'.class'文件 ，所以无法获取构造方法/方法中的参数名");
+				LOGGER.debug("无法找到[" + clazz + "]的\".class\"文件 ，所以无法获取构造方法/方法中的参数名");
 			}
 			return NO_DEBUG_INFO_MAP;
 		}
@@ -86,7 +86,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 			return map;
 		} catch (IOException ex) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("读取[" + clazz + "]的'.class'文件 发生异常，所以无法获取构造方法/方法中的参数名", ex);
+				LOGGER.debug("读取[" + clazz + "]的\".class\"文件 发生异常，所以无法获取构造方法/方法中的参数名", ex);
 			}
 		} finally {
 			try {
@@ -134,7 +134,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 	/**
 	 * LVT（Local Variable Table）访问器，用于访问方法的LVT
 	 * 
-	 *
+	 * 
 	 */
 	private static class LocalVariableTableVisitor extends EmptyVisitor {
 
@@ -146,7 +146,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 		private final Type[] args;
 		private final boolean isStatic;
 
-		private String[] parameterNames;
+		private final String[] parameterNames;
 		private boolean hasLvtInfo = false;
 
 		/*
@@ -180,7 +180,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 		@Override
 		public void visitEnd() {
 			if (this.hasLvtInfo || (this.isStatic && this.parameterNames.length == 0)) {
-				//由于静态的无参数方法不需要本地变量，所以不会有hasLvtInfo，需要特殊处理
+				// 由于静态的无参数方法不需要本地变量，所以不会有hasLvtInfo，需要特殊处理
 				memberMap.put(resolveMember(), parameterNames);
 			}
 		}

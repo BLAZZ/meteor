@@ -37,7 +37,8 @@ public class FieldChecks implements Serializable {
 	// private static final String FIELD_TEST_EQUAL = "EQUAL";
 
 	private static final int FORMAT_CACHE_SIZE = 256;
-	private static Map<String, MessageFormat> messageFormatCache = new HashMap<String, MessageFormat>(FORMAT_CACHE_SIZE);
+	private static final Map<String, MessageFormat> messageFormatCache = new HashMap<String, MessageFormat>(
+			FORMAT_CACHE_SIZE);
 
 	@SuppressWarnings("unchecked")
 	public static boolean validateRequired(Object bean, ValidatorAction va, Field field, Errors errors,
@@ -517,7 +518,7 @@ public class FieldChecks implements Serializable {
 	}
 
 	protected static String extractValue(Object bean, Field field) {
-		String value = null;
+		String value;
 		if (bean == null) {
 			return null;
 		} else if (bean instanceof String) {
@@ -528,7 +529,7 @@ public class FieldChecks implements Serializable {
 		return value;
 	}
 
-	public static void rejectValue(Errors errors, Field field, ValidatorAction va, ResourceBundle resourceBundle) {
+	protected static void rejectValue(Errors errors, Field field, ValidatorAction va, ResourceBundle resourceBundle) {
 		// String fieldCode = field.getKey();
 		// fieldCode = fieldCode.replace('(', '[').replace(')', ']');
 		String message = getMessage(va, field, resourceBundle);
@@ -573,14 +574,14 @@ public class FieldChecks implements Serializable {
 	/**
 	 * 获取配置文件msg的key
 	 * */
-	protected static String getMessageKey(ValidatorAction va, Field field) {
+	private static String getMessageKey(ValidatorAction va, Field field) {
 		return (field.getMsg(va.getName()) != null ? field.getMsg(va.getName()) : va.getMsg());
 	}
 
 	/**
 	 * 获取配置文件msg的arg
 	 * */
-	protected static Object[] getArgs(ValidatorAction va, Field field, ResourceBundle resourceBundle) {
+	private static Object[] getArgs(ValidatorAction va, Field field, ResourceBundle resourceBundle) {
 
 		List<Object> args = new ArrayList<Object>();
 		String actionName = va.getName();
@@ -607,7 +608,7 @@ public class FieldChecks implements Serializable {
 	/**
 	 * 获取arg对应的文字
 	 * */
-	protected static Object getMessage(Arg arg, ResourceBundle resourceBundle) {
+	private static Object getMessage(Arg arg, ResourceBundle resourceBundle) {
 		if (arg.isResource()) {
 			return createMessage(arg.getKey(), resourceBundle);
 		} else {
@@ -615,7 +616,7 @@ public class FieldChecks implements Serializable {
 		}
 	}
 
-	protected static String createMessage(Object obj, ResourceBundle resourceBundle) {
+	private static String createMessage(Object obj, ResourceBundle resourceBundle) {
 		String[] codes = new String[] { String.valueOf(obj) };
 		String code0 = codes[0];
 		String msg = resourceBundle.getString(code0);
@@ -626,7 +627,7 @@ public class FieldChecks implements Serializable {
 		}
 	}
 
-	static String getMessage(ValidatorAction va, Field field, ResourceBundle resourceBundle) {
+	private static String getMessage(ValidatorAction va, Field field, ResourceBundle resourceBundle) {
 		String code = getMessageKey(va, field);
 		Object[] args = getArgs(va, field, resourceBundle);
 
@@ -636,7 +637,7 @@ public class FieldChecks implements Serializable {
 		return message;
 	}
 
-	public static MessageFormat getMessageFormat(String key, ResourceBundle resourceBundle) {
+	private static MessageFormat getMessageFormat(String key, ResourceBundle resourceBundle) {
 		MessageFormat format = messageFormatCache.get(key);
 
 		if (format == null) {

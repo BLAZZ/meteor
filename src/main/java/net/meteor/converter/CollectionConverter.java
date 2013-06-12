@@ -69,7 +69,7 @@ public class CollectionConverter implements Converter {
 		Map<String, String[]> tempParameters = new HashMap<String, String[]>(requestParameters.size());
 		Map<String, List<MultipartFile>> multipartFiles = provider.getMultipartFiles();
 		Map<String, List<MultipartFile>> tempMultipartFiles = new HashMap<String, List<MultipartFile>>();
-		
+
 		ContextProvider tempProvider = provider.clone();
 
 		for (Entry<String, String[]> entry : requestParameters.entrySet()) {
@@ -78,14 +78,14 @@ public class CollectionConverter implements Converter {
 
 			if (values.length > index) {
 				String value = values[index];
-				String[] array = new String[] {value};
+				String[] array = new String[] { value };
 				tempParameters.put(key, array);
 				allOutOfBounds = false;
 			}
-			
-			if(multipartFiles != null) {
+
+			if (multipartFiles != null) {
 				List<MultipartFile> multipartFileList = multipartFiles.get(key);
-				if(multipartFileList.size() > index) {
+				if (multipartFileList.size() > index) {
 					List<MultipartFile> tempMultipartFileList = new ArrayList<MultipartFile>(1);
 					tempMultipartFileList.add(multipartFileList.get(index));
 					tempMultipartFiles.put(key, tempMultipartFileList);
@@ -102,7 +102,7 @@ public class CollectionConverter implements Converter {
 			return tempProvider;
 		}
 	}
-	
+
 	/**
 	 * 根据请求类型创建集合对象
 	 * 
@@ -110,7 +110,7 @@ public class CollectionConverter implements Converter {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	protected Collection createCollection(Class<?> clazz) {
+	private Collection createCollection(Class<?> clazz) {
 		if (SortedSet.class.isAssignableFrom(clazz)) {
 			return new TreeSet();
 		}

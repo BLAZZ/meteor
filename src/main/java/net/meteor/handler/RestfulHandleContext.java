@@ -12,6 +12,7 @@ import net.meteor.annotation.restful.PATCH;
 import net.meteor.annotation.restful.POST;
 import net.meteor.annotation.restful.PUT;
 import net.meteor.annotation.restful.TRACE;
+import net.meteor.converter.ConverterFactory;
 import net.meteor.utils.ParameterNameDiscoverer;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
  * @author wuqh
  * 
  */
-public class RestfulHandleContext {
+class RestfulHandleContext {
 	private static final String POST = "POST";
 	private static final String GET = "GET";
 	private static final String PUT = "PUT";
@@ -32,8 +33,8 @@ public class RestfulHandleContext {
 	private static final String OPTIONS = "OPTIONS";
 	private static final String TRACE = "TRACE";
 	private static final String PATCH = "PATCH";
-	
-	private Map<String, RequestHandleContext> handleContext = new HashMap<String, RequestHandleContext>(8, 1f);
+
+	private final Map<String, RequestHandleContext> handleContext = new HashMap<String, RequestHandleContext>(8, 1f);
 
 	/**
 	 * 使用处理器（Controller）、对应的处理方法构造RestfulHandleContext对象
@@ -43,8 +44,9 @@ public class RestfulHandleContext {
 	 * @param parameterNameDiscoverer
 	 * 
 	 */
-	public RestfulHandleContext(Object controller, Method method, ParameterNameDiscoverer parameterNameDiscoverer) {
-		addHandleContext(controller, method, parameterNameDiscoverer);
+	public RestfulHandleContext(Object controller, Method method, ParameterNameDiscoverer parameterNameDiscoverer,
+			ConverterFactory converterFactory) {
+		addHandleContext(controller, method, parameterNameDiscoverer, converterFactory);
 	}
 
 	/**
@@ -55,8 +57,10 @@ public class RestfulHandleContext {
 	 * @param parameterNameDiscoverer
 	 * 
 	 */
-	public void addHandleContext(Object controller, Method method, ParameterNameDiscoverer parameterNameDiscoverer) {
-		RequestHandleContext context = new RequestHandleContext(controller, method, parameterNameDiscoverer);
+	public void addHandleContext(Object controller, Method method, ParameterNameDiscoverer parameterNameDiscoverer,
+			ConverterFactory converterFactory) {
+		RequestHandleContext context = new RequestHandleContext(controller, method, parameterNameDiscoverer,
+				converterFactory);
 
 		GET get = method.getAnnotation(GET.class);
 		if (get != null) {
@@ -98,9 +102,9 @@ public class RestfulHandleContext {
 			setHandleContext(PATCH, context);
 		}
 	}
-	
-	public void setHandleContext(String method, RequestHandleContext handleContext) {
-		if(this.handleContext.get(method) != null) {
+
+	private void setHandleContext(String method, RequestHandleContext handleContext) {
+		if (this.handleContext.get(method) != null) {
 			throw new IllegalStateException("重复定义：该路径下已经存在" + method + "方法");
 		}
 		this.handleContext.put(method, handleContext);

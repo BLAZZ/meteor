@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 public class ReflectionUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionUtils.class);
 
-	public static final String CGLIB_CLASS_SEPARATOR = "$$";
+	private static final String CGLIB_CLASS_SEPARATOR = "$$";
 	/** ".class"文件扩展名 */
-	public static final String CLASS_FILE_SUFFIX = ".class";
-	
+	private static final String CLASS_FILE_SUFFIX = ".class";
+
 	public static final String CLASSPATH_PREFIX = "classpath:";
 
 	private static final Class<?>[] EMPTY_CLASSES = new Class<?>[0];
@@ -47,11 +47,7 @@ public class ReflectionUtils {
 			if (mf != null && !mf.matches(method)) {
 				continue;
 			}
-			try {
-				mc.doWith(method);
-			} catch (IllegalAccessException ex) {
-				throw new IllegalStateException("非法访问方法'" + method.getName() + "'：" + ex);
-			}
+			mc.doWith(method);
 		}
 		if (clazz.getSuperclass() != null) {
 			doWithMethods(clazz.getSuperclass(), mc, mf);
@@ -72,7 +68,7 @@ public class ReflectionUtils {
 		 * 
 		 * @param method
 		 */
-		void doWith(Method method) throws IllegalArgumentException, IllegalAccessException;
+		void doWith(Method method);
 	}
 
 	/**
@@ -91,7 +87,7 @@ public class ReflectionUtils {
 	/**
 	 * 预设的MethodFilter实现类，用于匹配方法中所有的非桥接方法和所有非<code>java.lang.Object</code>申明的方法
 	 */
-	public static MethodFilter USER_DECLARED_METHODS = new MethodFilter() {
+	public static final MethodFilter USER_DECLARED_METHODS = new MethodFilter() {
 
 		public boolean matches(Method method) {
 			return (!method.isBridge() && method.getDeclaringClass() != Object.class);
@@ -192,7 +188,7 @@ public class ReflectionUtils {
 	 *            - Generic 类型信息
 	 * @return 实际类信息
 	 */
-	public static Class<?>[] getActualClass(Type genericType) {
+	private static Class<?>[] getActualClass(Type genericType) {
 
 		if (genericType instanceof ParameterizedType) {
 
@@ -220,7 +216,8 @@ public class ReflectionUtils {
 	/**
 	 * 获取方法参数的泛型类型
 	 * 
-	 * @param clazz
+	 * @param method
+	 * @param parameterIndex
 	 * @return
 	 */
 	public static Class<?> getParameterGenericType(Method method, int parameterIndex) {

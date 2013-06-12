@@ -26,7 +26,7 @@ public class ContextProvider implements Cloneable {
 
 	private Map<String, String> uriTemplateVariables;
 
-	Map<String, List<MultipartFile>> multipartFiles;
+	private Map<String, List<MultipartFile>> multipartFiles;
 
 	public Map<String, String[]> getRequestParameters() {
 		return requestParameters;

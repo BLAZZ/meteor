@@ -14,15 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * commons-fileupload实现的MultipartFile
+ * Commons-FileUpload实现的MultipartFile
  * 
  * @author wuqh
- *
+ * 
  */
 public class CommonsMultipartFile implements MultipartFile {
 	private static final long serialVersionUID = 6106844513608675762L;
 
-	protected static final Logger LOGGER = LoggerFactory.getLogger(CommonsMultipartFile.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CommonsMultipartFile.class);
 
 	private final FileItem fileItem;
 
@@ -122,7 +122,7 @@ public class CommonsMultipartFile implements MultipartFile {
 	/**
 	 * multipart内容是否可用？如果文件已经被移动，就不可用了。
 	 */
-	protected boolean isAvailable() {
+	private boolean isAvailable() {
 		// 如果文件在内存中, 则可用
 		if (this.fileItem.isInMemory()) {
 			return true;

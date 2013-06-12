@@ -25,11 +25,11 @@ import org.xml.sax.SAXException;
  * */
 public class CommonsValidatorFactory implements ValidatorFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CommonsValidatorFactory.class);
-	public static final String PROPERTY_SUFFIX = ".properties";
+	private static final String PROPERTY_SUFFIX = ".properties";
 	private ValidatorResources validatorResources;
 	private ResourceBundle errorMessageBundle;
 
-	public void loadConfigLocations(String configLocations) {
+	public void setConfigLocations(String configLocations) {
 		String[] validationConfigLocations = StringUtils.split(configLocations, ",");
 
 		if (LOGGER.isDebugEnabled()) {
@@ -55,13 +55,13 @@ public class CommonsValidatorFactory implements ValidatorFactory {
 			throw new ResourceLoadFailedException("无法解析commons-validator的配置文件，XML格式错误", e);
 		}
 	}
-	
+
 	/**
 	 * 加载错误信息的资源
 	 * 
 	 * @param messageLocation
 	 */
-	public void loadErrorMessage(String messageLocation) {
+	public void setErrorMessage(String messageLocation) {
 		if (StringUtils.isNotEmpty(messageLocation)) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("从路径" + messageLocation + "中加载错误提示资源文件");
@@ -74,7 +74,7 @@ public class CommonsValidatorFactory implements ValidatorFactory {
 		if (errorMessageBundle == null) {
 			throw new ResourceLoadFailedException("没有找到配置文件[" + messageLocation + "]");
 		}
-		
+
 	}
 
 	@Override

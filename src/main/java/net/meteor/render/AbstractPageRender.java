@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
  * 
  */
 public abstract class AbstractPageRender implements PageRender {
-	private static final String DEFUALT_VIEW_PRFIX = "/views/";
+	private static final String DEFAULT_VIEW_PREFIX = "/views/";
 	private String pagePrefix;
 
 	@Override
@@ -46,7 +46,7 @@ public abstract class AbstractPageRender implements PageRender {
 	 * @param viewName
 	 * @param model
 	 */
-	public abstract void doRender(HttpServletRequest request, HttpServletResponse response, String viewName,
+	protected abstract void doRender(HttpServletRequest request, HttpServletResponse response, String viewName,
 			Map<String, ?> model);
 
 	/**
@@ -63,7 +63,7 @@ public abstract class AbstractPageRender implements PageRender {
 	 * 
 	 * @return
 	 */
-	public String getPagePrefix() {
-		return (StringUtils.isBlank(pagePrefix) ? DEFUALT_VIEW_PRFIX : pagePrefix);
+	protected String getPagePrefix() {
+		return (StringUtils.isBlank(pagePrefix) ? DEFAULT_VIEW_PREFIX : pagePrefix);
 	}
 }

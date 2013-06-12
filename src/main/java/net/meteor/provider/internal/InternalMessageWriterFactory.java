@@ -9,11 +9,11 @@ import net.meteor.utils.WebUtils;
  * MessageWriterFactory的默认实现（使用JacksonMessageWriter）
  * 
  * @author wuqh
- *
+ * 
  */
 public class InternalMessageWriterFactory implements MessageWriterFactory {
-	JacksonMessageWriter messageWriter = new JacksonMessageWriter();
-	
+	private final JacksonMessageWriter messageWriter = new JacksonMessageWriter();
+
 	public InternalMessageWriterFactory() {
 		messageWriter.setMime(WebUtils.DEFAULT_MIME);
 	}

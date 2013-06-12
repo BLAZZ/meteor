@@ -12,14 +12,15 @@ import net.meteor.exception.PageRenderException;
  * 基于JSP实现的页面渲染操作
  * 
  * @author wuqh
- *
+ * 
  */
 public class JsperPageRender extends AbstractPageRender implements PageRender {
 	private static final String PAGE_SUFFIX = ".jsp";
-	protected boolean useInclude = false;
+	private boolean useInclude = false;
 
 	@Override
-	public void doRender(HttpServletRequest request, HttpServletResponse response, String viewName, Map<String, ?> model) {
+	protected void doRender(HttpServletRequest request, HttpServletResponse response, String viewName,
+			Map<String, ?> model) {
 		String path = getPagePrefix() + viewName + PAGE_SUFFIX;
 
 		prepareRequest(request, model);
@@ -38,13 +39,17 @@ public class JsperPageRender extends AbstractPageRender implements PageRender {
 			}
 		}
 	}
-	
-	protected void prepareRequest(HttpServletRequest request, Map<String, ?> model) {
+
+	private void prepareRequest(HttpServletRequest request, Map<String, ?> model) {
 		if (model == null || model.isEmpty()) {
 			return;
 		}
 		for (Entry<String, ?> entry : model.entrySet()) {
 			request.setAttribute(entry.getKey(), entry.getValue());
 		}
+	}
+
+	public void setUseInclude(boolean useInclude) {
+		this.useInclude = useInclude;
 	}
 }

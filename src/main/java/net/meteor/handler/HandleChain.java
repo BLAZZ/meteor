@@ -105,8 +105,7 @@ public class HandleChain {
 	 * @param ex
 	 * @throws Exception
 	 */
-	public void doAfterCompletion(HttpServletRequest request, HttpServletResponse response, Exception ex)
-			throws Exception {
+	public void doAfterCompletion(HttpServletRequest request, HttpServletResponse response, Exception ex) {
 
 		if (interceptors == null) {
 			return;

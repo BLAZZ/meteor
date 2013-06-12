@@ -61,7 +61,7 @@ public class WebUtils {
 	 * @param mediaType
 	 */
 	public static Charset getCharsetFromMediaType(String mediaType) {
-		Assert.notNull(mediaType, "'mediaType'不能为空");
+		Assert.notNull(mediaType, "mediaType不能为空");
 
 		Charset charset = MEDIA_TYPE_CACHE.get(mediaType);
 		if (charset != null) {
@@ -106,7 +106,7 @@ public class WebUtils {
 			return null;
 		}
 
-		String charSet = (parameters != null ? parameters.get(PARAM_CHARSET) : null);
+		String charSet = parameters.get(PARAM_CHARSET);
 		return (charSet != null ? Charset.forName(charSet) : null);
 	}
 

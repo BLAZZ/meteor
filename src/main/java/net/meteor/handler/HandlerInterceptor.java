@@ -46,7 +46,7 @@ public interface HandlerInterceptor {
 			throws Exception;
 
 	/**
-	 * 获取order值
+	 * 获取order值,(order值越小越先处理)
 	 * 
 	 * @return
 	 */

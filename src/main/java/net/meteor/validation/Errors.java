@@ -9,7 +9,7 @@ import java.util.Map;
  * @author wuqh
  * */
 public class Errors {
-	Map<String, String> errors;
+	private final Map<String, String> errors;
 
 	public Errors() {
 		errors = new LinkedHashMap<String, String>();
@@ -50,5 +50,5 @@ public class Errors {
 	public boolean hasErrors() {
 		return errors.size() > 0;
 	}
-	
+
 }

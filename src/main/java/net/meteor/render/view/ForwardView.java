@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  * 用于Forward操作的View
  * 
  * @author wuqh
- *
+ * 
  */
 public class ForwardView extends UrlBasedView implements View {
 
@@ -23,7 +23,7 @@ public class ForwardView extends UrlBasedView implements View {
 	@Override
 	public void render(HttpServletRequest request, HttpServletResponse response, Map<String, ?> model) throws Exception {
 
-		String targetUrl = getQueryUrl(request, response, model);
+		String targetUrl = getQueryUrl(request, model);
 		String encodedRedirectURL = response.encodeRedirectURL(targetUrl);
 
 		request.getRequestDispatcher(encodedRedirectURL).forward(request, response);
@@ -39,11 +39,11 @@ public class ForwardView extends UrlBasedView implements View {
 		prepareRequest(request, model);
 	}
 
-	protected void prepareRequest(HttpServletRequest request, Map<String, ?> model) {
+	private void prepareRequest(HttpServletRequest request, Map<String, ?> model) {
 		if (model == null || model.isEmpty()) {
 			return;
 		}
-		
+
 		for (Entry<String, ?> entry : model.entrySet()) {
 			Object rawValue = entry.getValue();
 			if (rawValue != null && rawValue.getClass().isArray() && Array.getLength(rawValue) == 1) {

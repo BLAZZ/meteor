@@ -9,7 +9,7 @@ import java.io.Serializable;
  * 上传的文件
  * 
  * @author wuqh
- *
+ * 
  */
 public interface MultipartFile extends Serializable {
 	/**
@@ -51,9 +51,8 @@ public interface MultipartFile extends Serializable {
 	 * 返回上传文件的内容（二进制数组）
 	 * 
 	 * @return
-	 * @throws IOException
 	 */
-	byte[] getBytes() throws IOException;
+	byte[] getBytes();
 
 	/**
 	 * 获取上传文件的输入流

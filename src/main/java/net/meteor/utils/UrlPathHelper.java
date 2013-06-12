@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 public class UrlPathHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UrlPathHelper.class);
-	private String defaultEncoding = WebUtils.DEFAULT_CHARACTER_ENCODING;
 
 	/**
 	 * 获取请求URI
@@ -48,7 +47,7 @@ public class UrlPathHelper {
 	 * @param requestUri
 	 * @return
 	 */
-	public String removeSemicolonContent(String requestUri) {
+	private String removeSemicolonContent(String requestUri) {
 		int semicolonIndex = requestUri.indexOf(';');
 		while (semicolonIndex != -1) {
 			int slashIndex = requestUri.indexOf('/', semicolonIndex);
@@ -72,7 +71,7 @@ public class UrlPathHelper {
 	 * @see java.net.URLDecoder#decode(String)
 	 */
 	@SuppressWarnings("deprecation")
-	public String decodeRequestString(HttpServletRequest request, String source) {
+	private String decodeRequestString(HttpServletRequest request, String source) {
 		String enc = determineEncoding(request);
 		try {
 			return URLDecoder.decode(source, enc);
@@ -91,10 +90,11 @@ public class UrlPathHelper {
 	 * @return
 	 * @see javax.servlet.ServletRequest#getCharacterEncoding()
 	 */
-	protected String determineEncoding(HttpServletRequest request) {
+	private String determineEncoding(HttpServletRequest request) {
 		String enc = request.getCharacterEncoding();
 		if (enc == null) {
-			enc = this.defaultEncoding;
+			String defaultEncoding = WebUtils.DEFAULT_CHARACTER_ENCODING;
+			enc = defaultEncoding;
 		}
 		return enc;
 	}
@@ -128,7 +128,7 @@ public class UrlPathHelper {
 	 * @param request
 	 * @return
 	 */
-	public String getPathWithinServletMapping(HttpServletRequest request) {
+	private String getPathWithinServletMapping(HttpServletRequest request) {
 		String pathWithinApp = getPathWithinApplication(request);
 		String servletPath = getServletPath(request);
 		String path = getRemainingPath(pathWithinApp, servletPath, false);
@@ -149,7 +149,7 @@ public class UrlPathHelper {
 	 * @param request
 	 * @return
 	 */
-	public String getPathWithinApplication(HttpServletRequest request) {
+	private String getPathWithinApplication(HttpServletRequest request) {
 		String contextPath = getContextPath(request);
 		String requestUri = getRequestUri(request);
 		String path = getRemainingPath(requestUri, contextPath, true);
@@ -167,7 +167,7 @@ public class UrlPathHelper {
 	 * @param request
 	 * @return
 	 */
-	public String getContextPath(HttpServletRequest request) {
+	private String getContextPath(HttpServletRequest request) {
 		String contextPath = (String) request.getAttribute(WebUtils.INCLUDE_CONTEXT_PATH_ATTRIBUTE);
 		if (contextPath == null) {
 			contextPath = request.getContextPath();
@@ -184,7 +184,7 @@ public class UrlPathHelper {
 	 * @param request
 	 * @return
 	 */
-	public String getServletPath(HttpServletRequest request) {
+	private String getServletPath(HttpServletRequest request) {
 		String servletPath = (String) request.getAttribute(WebUtils.INCLUDE_SERVLET_PATH_ATTRIBUTE);
 		if (servletPath == null) {
 			servletPath = request.getServletPath();

@@ -36,10 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * commons-fileupload实现的MultipartParser
+ * Commons-FileUpload实现的MultipartParser
  * 
  * @author wuqh
- *
+ * 
  */
 public class CommonsMultipartParser implements MultipartParser {
 	private final Logger LOGGER = LoggerFactory.getLogger(CommonsMultipartParser.class);
@@ -64,7 +64,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * 
 	 * @param servletContext
 	 */
-	public void setServletContext(ServletContext servletContext) {
+	private void setServletContext(ServletContext servletContext) {
 		if (!isUploadTempDirSpecified()) {
 			getFileItemFactory().setRepository(WebUtils.getTempDir(servletContext));
 		}
@@ -75,7 +75,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * 
 	 * @return
 	 */
-	protected DiskFileItemFactory newFileItemFactory() {
+	private DiskFileItemFactory newFileItemFactory() {
 		return new DiskFileItemFactory();
 	}
 
@@ -84,7 +84,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * 
 	 * @return
 	 */
-	public DiskFileItemFactory getFileItemFactory() {
+	private DiskFileItemFactory getFileItemFactory() {
 		return this.fileItemFactory;
 	}
 
@@ -94,7 +94,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * @param fileItemFactory
 	 * @return
 	 */
-	protected FileUpload newFileUpload(FileItemFactory fileItemFactory) {
+	private FileUpload newFileUpload(FileItemFactory fileItemFactory) {
 		return new ServletFileUpload(fileItemFactory);
 	}
 
@@ -103,7 +103,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * 
 	 * @return
 	 */
-	public FileUpload getFileUpload() {
+	private FileUpload getFileUpload() {
 		return this.fileUpload;
 	}
 
@@ -112,7 +112,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * 
 	 * @return
 	 */
-	public boolean isUploadTempDirSpecified() {
+	private boolean isUploadTempDirSpecified() {
 		return uploadTempDirSpecified;
 	}
 
@@ -122,7 +122,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * @param uploadTempDir
 	 * @throws IOException
 	 */
-	public void setUploadTempDir(String uploadTempDir) throws IOException {
+	public void setUploadTempDir(String uploadTempDir) {
 		File file = new File(uploadTempDir);
 
 		if (!file.exists() && !file.mkdirs()) {
@@ -166,7 +166,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * 获取默认编码格式
 	 * 
 	 */
-	protected String getDefaultEncoding() {
+	private String getDefaultEncoding() {
 		String encoding = getFileUpload().getHeaderEncoding();
 		if (encoding == null) {
 			encoding = WebUtils.DEFAULT_CHARACTER_ENCODING;
@@ -184,14 +184,14 @@ public class CommonsMultipartParser implements MultipartParser {
 			return new DefaultMultipartHttpServletRequest(request) {
 				@Override
 				protected void initializeMultipart() {
-					MultipartParsingResult parsingResult = null;
+					MultipartParsingResult parsingResult;
 					parsingResult = parseRequest(request);
 					setMultipartFiles(parsingResult.getMultipartFiles());
 					setMultipartParameters(parsingResult.getMultipartParameters());
 				}
 			};
 		} else {
-			MultipartParsingResult parsingResult = null;
+			MultipartParsingResult parsingResult;
 			parsingResult = parseRequest(request);
 			return new DefaultMultipartHttpServletRequest(request, parsingResult.getMultipartFiles(),
 					parsingResult.getMultipartParameters());
@@ -205,7 +205,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected MultipartParsingResult parseRequest(HttpServletRequest request) {
+	private MultipartParsingResult parseRequest(HttpServletRequest request) {
 		String encoding = determineEncoding(request);
 		FileUpload fileUpload = prepareFileUpload(encoding);
 		List<FileItem> fileItems;
@@ -226,7 +226,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * @param request
 	 * @return
 	 */
-	protected String determineEncoding(HttpServletRequest request) {
+	private String determineEncoding(HttpServletRequest request) {
 		String encoding = request.getCharacterEncoding();
 		if (encoding == null) {
 			encoding = getDefaultEncoding();
@@ -240,7 +240,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * @param encoding
 	 * @return
 	 */
-	protected FileUpload prepareFileUpload(String encoding) {
+	private FileUpload prepareFileUpload(String encoding) {
 		FileUpload fileUpload = getFileUpload();
 		FileUpload actualFileUpload = fileUpload;
 
@@ -261,7 +261,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * @param encoding
 	 * @return
 	 */
-	protected MultipartParsingResult parseFileItems(List<FileItem> fileItems, String encoding) {
+	private MultipartParsingResult parseFileItems(List<FileItem> fileItems, String encoding) {
 		Map<String, List<MultipartFile>> multipartFiles = new LinkedHashMap<String, List<MultipartFile>>();
 		Map<String, String[]> multipartParameters = new HashMap<String, String[]>();
 
@@ -344,7 +344,7 @@ public class CommonsMultipartParser implements MultipartParser {
 	 * 
 	 * @param multipartFiles
 	 */
-	protected void cleanupFileItems(Map<String, List<MultipartFile>> multipartFiles) {
+	private void cleanupFileItems(Map<String, List<MultipartFile>> multipartFiles) {
 		for (List<MultipartFile> files : multipartFiles.values()) {
 			for (MultipartFile file : files) {
 				if (file instanceof CommonsMultipartFile) {

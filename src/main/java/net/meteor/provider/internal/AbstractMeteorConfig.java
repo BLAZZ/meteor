@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import net.meteor.converter.ConverterFactory;
+import net.meteor.converter.DefaultConverterFactory;
 import net.meteor.handler.ExceptionHandler;
 import net.meteor.handler.HandlerInterceptor;
 import net.meteor.handler.PathDetector;
@@ -29,17 +31,17 @@ import net.meteor.web.MeteorConfig;
  * 
  */
 public abstract class AbstractMeteorConfig implements MeteorConfig {
-	private PathMatcher matcher = new AntPathMatcher();
-	private ParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
-	private UrlPathHelper pathHelper = new UrlPathHelper();
-	private MessageWriterFactory messageWriterFactory = new InternalMessageWriterFactory();
+	private final PathMatcher matcher = new AntPathMatcher();
+	private final ParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
+	private final UrlPathHelper pathHelper = new UrlPathHelper();
+	private final MessageWriterFactory messageWriterFactory = new InternalMessageWriterFactory();
 
 	public abstract List<?> getControllers(ServletContext context);
 
 	public abstract List<HandlerInterceptor> getHandlerInterceptors(ServletContext context);
 
 	public abstract ExceptionHandler getExceptionHandler(ServletContext context);
-	
+
 	public abstract ValidatorFactory getValidatorFactory(ServletContext context);
 
 	public MultipartParser getMultipartParser(ServletContext context) {
@@ -47,7 +49,8 @@ public abstract class AbstractMeteorConfig implements MeteorConfig {
 	}
 
 	public PathDetector getPathDetector(ServletContext context) {
-		PathDetector detector = new PathDetector(getPathMatcher(), getUrlPathHelper(), getParameterNameDiscoverer());
+		PathDetector detector = new PathDetector(getPathMatcher(), getUrlPathHelper(), getParameterNameDiscoverer(),
+				getConverterFactory());
 		detector.setHandlerInterceptors(getHandlerInterceptors(context));
 		return detector;
 	}
@@ -74,5 +77,10 @@ public abstract class AbstractMeteorConfig implements MeteorConfig {
 
 	public PageRender getPageRender(ServletContext context) {
 		return new JsperPageRender();
+	}
+
+	@Override
+	public ConverterFactory getConverterFactory() {
+		return new DefaultConverterFactory();
 	}
 }
